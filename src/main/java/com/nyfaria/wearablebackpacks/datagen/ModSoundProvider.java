@@ -1,11 +1,11 @@
 package com.nyfaria.wearablebackpacks.datagen;
 
 import net.minecraft.data.DataGenerator;
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.SoundEvent;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.SoundDefinition;
 import net.minecraftforge.common.data.SoundDefinitionsProvider;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.fml.RegistryObject;
 
 public class ModSoundProvider extends SoundDefinitionsProvider {
 

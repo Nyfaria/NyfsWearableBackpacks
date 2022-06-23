@@ -3,9 +3,9 @@ package com.nyfaria.wearablebackpacks.network;
 import com.google.common.collect.ImmutableList;
 import com.nyfaria.wearablebackpacks.WearableBackpacks;
 import com.nyfaria.wearablebackpacks.network.packets.PacketOpenBackpack;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import java.util.List;
 import java.util.function.BiConsumer;

@@ -1,20 +1,17 @@
 package com.nyfaria.wearablebackpacks.client.renderer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.nyfaria.wearablebackpacks.client.model.SimpleModel;
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.world.item.*;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.item.IDyeableArmorItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.geo.render.built.GeoBone;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
-import java.awt.*;
-
-public class SimpleItemRenderer<T extends Item & IAnimatable & DyeableLeatherItem> extends GeoItemRenderer<T> {
+public class SimpleItemRenderer<T extends Item & IAnimatable & IDyeableArmorItem> extends GeoItemRenderer<T> {
 
     T item;
     public SimpleItemRenderer() {
@@ -22,13 +19,13 @@ public class SimpleItemRenderer<T extends Item & IAnimatable & DyeableLeatherIte
     }
 
     @Override
-    public void render(T animatable, PoseStack stack, MultiBufferSource bufferIn, int packedLightIn, ItemStack itemStack) {
+    public void render(T animatable, MatrixStack stack, IRenderTypeBuffer bufferIn, int packedLightIn, ItemStack itemStack) {
         item = animatable;
         super.render(animatable, stack, bufferIn, packedLightIn, itemStack);
     }
 
     @Override
-    public void renderRecursively(GeoBone bone, PoseStack stack, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
+    public void renderRecursively(GeoBone bone, MatrixStack stack, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         if(bone.getName().contains("color")) {
             int i = item.getColor(currentItemStack);
             float r = (float) (i >> 16 & 255) / 255.0F;

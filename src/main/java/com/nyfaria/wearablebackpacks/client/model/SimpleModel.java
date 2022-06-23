@@ -1,7 +1,7 @@
 package com.nyfaria.wearablebackpacks.client.model;
 
 import com.nyfaria.wearablebackpacks.WearableBackpacks;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 

@@ -3,42 +3,43 @@ package com.nyfaria.wearablebackpacks.block;
 import com.nyfaria.wearablebackpacks.block.entity.BackpackBlockEntity;
 import com.nyfaria.wearablebackpacks.cap.BackpackHolderAttacher;
 import com.nyfaria.wearablebackpacks.init.ItemInit;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.*;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DyeableLeatherItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockRenderType;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.HorizontalBlock;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.inventory.ItemStackHelper;
+import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.IDyeableArmorItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.state.StateContainer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class BackpackBlock extends HorizontalDirectionalBlock implements EntityBlock {
+public class BackpackBlock extends HorizontalBlock {
     private static final VoxelShape SHAPE_NORTH = makeShape(Direction.NORTH);
     private static final VoxelShape SHAPE_EAST = makeShape(Direction.EAST);
     private static final VoxelShape SHAPE_SOUTH = makeShape(Direction.SOUTH);
@@ -49,22 +50,22 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
     }
 
     @Override
-    public RenderShape getRenderShape(BlockState pState) {
-        return RenderShape.ENTITYBLOCK_ANIMATED;
+    public BlockRenderType getRenderShape(BlockState pState) {
+        return BlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
-    public BlockState getStateForPlacement(BlockPlaceContext pContext) {
-        LevelAccessor levelaccessor = pContext.getLevel();
+    public BlockState getStateForPlacement(BlockItemUseContext pContext) {
+        IWorld levelaccessor = pContext.getLevel();
         BlockPos blockpos = pContext.getClickedPos();
         return this.defaultBlockState()/*.setValue(WATERLOGGED, Boolean.valueOf(levelaccessor.getFluidState(blockpos).getType() == Fluids.WATER))*/
                 .setValue(FACING, pContext.getHorizontalDirection());
     }
 
     @Override
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
+    public ActionResultType use(BlockState pState, World pLevel, BlockPos pPos, PlayerEntity pPlayer, Hand pHand, BlockRayTraceResult pHit) {
         if (!pLevel.isClientSide) {
 
-            MenuProvider menuprovider = this.getMenuProvider(pState, pLevel, pPos);
+            INamedContainerProvider menuprovider = this.getMenuProvider(pState, pLevel, pPos);
             if (menuprovider != null) {
                 pPlayer.openMenu(menuprovider);
             }
@@ -75,24 +76,24 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
     public static final ResourceLocation CONTENTS = new ResourceLocation("contents");
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
-        BackpackBlockEntity blockentity = (BackpackBlockEntity) level.getBlockEntity(pos);
+    public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player) {
+        BackpackBlockEntity blockentity = (BackpackBlockEntity) world.getBlockEntity(pos);
         ItemStack itemstack = getColoredItemStack(blockentity.getColor());
         itemstack.setTag(blockentity.getBackpackTag());
-        CompoundTag compoundtag = new CompoundTag();
-        ContainerHelper.saveAllItems(compoundtag, BackpackBlockEntity.getInventory(blockentity));
+        CompoundNBT compoundtag = new CompoundNBT();
+        ItemStackHelper.saveAllItems(compoundtag, BackpackBlockEntity.getInventory(blockentity));
         BackpackHolderAttacher.getBackpackHolderUnwrap(itemstack).deserializeNBT(compoundtag);
         return itemstack;
     }
 
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
+    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> pBuilder) {
         pBuilder.add(FACING);
     }
 
     @Override
-    public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
+    public VoxelShape getShape(BlockState pState, IBlockReader pLevel, BlockPos pPos, ISelectionContext pContext) {
         Direction direction = pState.getValue(FACING);
         return switch (direction) {
             case NORTH -> SHAPE_NORTH;
@@ -104,78 +105,78 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
     }
 
     public static VoxelShape makeShape(Direction direction) {
-        VoxelShape shape = Shapes.empty();
+        VoxelShape shape = VoxelShapes.empty();
         if (direction == Direction.NORTH) {
-            shape = Shapes.join(shape, Shapes.box(0.1875, 0, 0.28125, 0.8125, 0.5625, 0.59375), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.25, 0.0625, 0.59375, 0.75, 0.4375, 0.71875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.1875, 0.5625, 0.28125, 0.8125, 0.75, 0.59375), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.6875, 0.1875, 0.21875, 0.75, 0.6875, 0.28125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.25, 0.1875, 0.21875, 0.3125, 0.6875, 0.28125), BooleanOp.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.1875, 0, 0.28125, 0.8125, 0.5625, 0.59375), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.25, 0.0625, 0.59375, 0.75, 0.4375, 0.71875), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.1875, 0.5625, 0.28125, 0.8125, 0.75, 0.59375), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.6875, 0.1875, 0.21875, 0.75, 0.6875, 0.28125), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.25, 0.1875, 0.21875, 0.3125, 0.6875, 0.28125), IBooleanFunction.OR);
         } else if (direction == Direction.WEST) {
-            shape = Shapes.join(shape, Shapes.box(0.28125, 0, 0.1875, 0.59375, 0.5625, 0.8125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.59375, 0.0625, 0.25, 0.71875, 0.4375, 0.75), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.28125, 0.5625, 0.1875, 0.59375, 0.75, 0.8125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.21875, 0.1875, 0.25, 0.28125, 0.6875, 0.3125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.21875, 0.1875, 0.625, 0.28125, 0.6875, 0.6875), BooleanOp.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.28125, 0, 0.1875, 0.59375, 0.5625, 0.8125), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.59375, 0.0625, 0.25, 0.71875, 0.4375, 0.75), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.28125, 0.5625, 0.1875, 0.59375, 0.75, 0.8125), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.21875, 0.1875, 0.25, 0.28125, 0.6875, 0.3125), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.21875, 0.1875, 0.625, 0.28125, 0.6875, 0.6875), IBooleanFunction.OR);
         } else if (direction == Direction.EAST) {
-            shape = Shapes.join(shape, Shapes.box(0.40625, 0, 0.1875, 0.71875, 0.5625, 0.8125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.28125, 0.0625, 0.25, 0.40625, 0.4375, 0.75), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.40625, 0.5625, 0.1875, 0.71875, 0.75, 0.8125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.71875, 0.1875, 0.25, 0.78125, 0.6875, 0.3125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.71875, 0.1875, 0.625, 0.78125, 0.6875, 0.6875), BooleanOp.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.40625, 0, 0.1875, 0.71875, 0.5625, 0.8125), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.28125, 0.0625, 0.25, 0.40625, 0.4375, 0.75), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.40625, 0.5625, 0.1875, 0.71875, 0.75, 0.8125), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.71875, 0.1875, 0.25, 0.78125, 0.6875, 0.3125), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.71875, 0.1875, 0.625, 0.78125, 0.6875, 0.6875), IBooleanFunction.OR);
         } else if (direction == Direction.SOUTH) {
-            shape = Shapes.join(shape, Shapes.box(0.1875, 0, 0.40625, 0.8125, 0.5625, 0.71875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.25, 0.0625, 0.28125, 0.75, 0.4375, 0.40625), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.1875, 0.5625, 0.40625, 0.8125, 0.75, 0.71875), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.6875, 0.1875, 0.71875, 0.75, 0.6875, 0.78125), BooleanOp.OR);
-            shape = Shapes.join(shape, Shapes.box(0.25, 0.1875, 0.71875, 0.3125, 0.6875, 0.78125), BooleanOp.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.1875, 0, 0.40625, 0.8125, 0.5625, 0.71875), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.25, 0.0625, 0.28125, 0.75, 0.4375, 0.40625), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.1875, 0.5625, 0.40625, 0.8125, 0.75, 0.71875), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.6875, 0.1875, 0.71875, 0.75, 0.6875, 0.78125), IBooleanFunction.OR);
+            shape = VoxelShapes.join(shape, VoxelShapes.box(0.25, 0.1875, 0.71875, 0.3125, 0.6875, 0.78125), IBooleanFunction.OR);
         }
         return shape;
     }
 
-    public boolean triggerEvent(BlockState pState, Level pLevel, BlockPos pPos, int pId, int pParam) {
+    public boolean triggerEvent(BlockState pState, World pLevel, BlockPos pPos, int pId, int pParam) {
         super.triggerEvent(pState, pLevel, pPos, pId, pParam);
-        BlockEntity blockentity = pLevel.getBlockEntity(pPos);
+        TileEntity blockentity = pLevel.getBlockEntity(pPos);
         return blockentity == null ? false : blockentity.triggerEvent(pId, pParam);
     }
 
     @Nullable
-    public MenuProvider getMenuProvider(BlockState pState, Level pLevel, BlockPos pPos) {
-        BlockEntity blockentity = pLevel.getBlockEntity(pPos);
-        return blockentity instanceof MenuProvider ? (MenuProvider) blockentity : null;
+    public INamedContainerProvider getMenuProvider(BlockState pState, World pLevel, BlockPos pPos) {
+        TileEntity blockentity = pLevel.getBlockEntity(pPos);
+        return blockentity instanceof INamedContainerProvider ? (INamedContainerProvider) blockentity : null;
+    }
+
+
+    @Override
+    public boolean hasTileEntity(BlockState state) {
+        return true;
     }
 
     @Nullable
-    protected static <E extends BlockEntity, A extends BlockEntity> BlockEntityTicker<A> createTickerHelper(BlockEntityType<A> p_152133_, BlockEntityType<E> p_152134_, BlockEntityTicker<? super E> p_152135_) {
-        return p_152134_ == p_152133_ ? (BlockEntityTicker<A>) p_152135_ : null;
-    }
-
-    @org.jetbrains.annotations.Nullable
     @Override
-    public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
-        return new BackpackBlockEntity(pPos, pState);
+    public TileEntity createTileEntity(BlockState state, IBlockReader world) {
+        return new BackpackBlockEntity();
     }
 
 
-
     @Override
-    public boolean onDestroyedByPlayer(BlockState state, Level pLevel, BlockPos pPos, Player pPlayer, boolean willHarvest, FluidState fluid) {
+    public boolean removedByPlayer(BlockState state, World pLevel, BlockPos pPos, PlayerEntity pPlayer, boolean willHarvest, FluidState fluid) {
             if (pLevel.getBlockEntity(pPos) instanceof BackpackBlockEntity blockEntity) {
                 ItemStack itemstack = getColoredItemStack(blockEntity.getColor());
                 itemstack.setTag(blockEntity.getBackpackTag());
                 if (pPlayer.isShiftKeyDown()) {
-                    CompoundTag tag = new CompoundTag();
-                    ContainerHelper.saveAllItems(tag, BackpackBlockEntity.getInventory(blockEntity));
+                    CompoundNBT tag = new CompoundNBT();
+                    ItemStackHelper.saveAllItems(tag, BackpackBlockEntity.getInventory(blockEntity));
                     BackpackHolderAttacher.getBackpackHolderUnwrap(itemstack).deserializeNBT(tag, true);
-                    if (pPlayer.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
+                    if (pPlayer.getItemBySlot(EquipmentSlotType.CHEST).isEmpty()) {
                         if (!pLevel.isClientSide) {
-                            pPlayer.setItemSlot(EquipmentSlot.CHEST, itemstack);
+                            pPlayer.setItemSlot(EquipmentSlotType.CHEST, itemstack);
                         }
                     } else {
-                        if (pPlayer.getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get()) && !pLevel.isClientSide) {
-                            pPlayer.sendMessage(new TranslatableComponent("message.wearablebackpacks.limit"), UUID.randomUUID());
+                        if (pPlayer.getItemBySlot(EquipmentSlotType.CHEST).getItem() == ItemInit.BACKPACK.get() && !pLevel.isClientSide) {
+                            pPlayer.sendMessage(new TranslationTextComponent("message.wearablebackpacks.limit"), UUID.randomUUID());
                         } else if(!pLevel.isClientSide) {
-                            pPlayer.sendMessage(new TranslatableComponent("message.wearablebackpacks.chestplate"), UUID.randomUUID());
+                            pPlayer.sendMessage(new TranslationTextComponent("message.wearablebackpacks.chestplate"), UUID.randomUUID());
                         }
                         return false;
                     }
@@ -183,15 +184,15 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
                     ItemEntity drop = new ItemEntity(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), itemstack);
                     drop.setDefaultPickUpDelay();
                     pLevel.addFreshEntity(drop);
-                    Containers.dropContents(pLevel,pPos,blockEntity);
+                    InventoryHelper.dropContents(pLevel,pPos,blockEntity);
                 }
             }
-        return super.onDestroyedByPlayer(state, pLevel, pPos, pPlayer, willHarvest, fluid);
+        return super.removedByPlayer(state, pLevel, pPos, pPlayer, willHarvest, fluid);
     }
 
     public static ItemStack getColoredItemStack(@Nullable int pColor) {
         ItemStack stack = new ItemStack(ItemInit.BACKPACK.get());
-        ((DyeableLeatherItem) stack.getItem()).setColor(stack, pColor);
+        ((IDyeableArmorItem) stack.getItem()).setColor(stack, pColor);
         return stack;
     }
 

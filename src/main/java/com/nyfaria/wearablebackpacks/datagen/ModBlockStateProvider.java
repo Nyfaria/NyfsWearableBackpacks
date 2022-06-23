@@ -1,7 +1,7 @@
 package com.nyfaria.wearablebackpacks.datagen;
 
 import net.minecraft.data.DataGenerator;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.block.Block;
 import net.minecraftforge.client.model.generators.BlockModelBuilder;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;

@@ -3,9 +3,9 @@ package com.nyfaria.wearablebackpacks.backpack;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import com.nyfaria.wearablebackpacks.init.TagInit;
 import com.nyfaria.wearablebackpacks.item.BackpackItem;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.NonNullList;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
@@ -42,7 +42,7 @@ public class BackpackInventory extends ItemStackHandler {
     @Nonnull
     public ItemStack insertItem(@Nonnull ItemStack stack, boolean simulate) {
         for(int x = 0; x < getSlots(); x++){
-            if(getStackInSlot(x).is(stack.getItem()) && getStackInSlot(x).getCount() < 64){
+            if(getStackInSlot(x).getItem() == (stack.getItem()) && getStackInSlot(x).getCount() < 64){
                 return insertItem(x, stack, simulate);
             }
         }
@@ -97,7 +97,7 @@ public class BackpackInventory extends ItemStackHandler {
 
     @Override
     public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-        return !stack.is(TagInit.BLACKLIST);
+        return !stack.getItem().is(TagInit.BLACKLIST);
     }
 
     @Override
@@ -123,16 +123,16 @@ public class BackpackInventory extends ItemStackHandler {
         this.stacks = stacks;
     }
     @Override
-    public CompoundTag serializeNBT() {
-        CompoundTag compound = new CompoundTag();
+    public CompoundNBT serializeNBT() {
+        CompoundNBT compound = new CompoundNBT();
         for (int slot = 0; slot < this.stacks.size(); slot++) {
-            compound.put("stack" + slot, this.stacks.get(slot).save(new CompoundTag()));
+            compound.put("stack" + slot, this.stacks.get(slot).save(new CompoundNBT()));
         }
         return compound;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag compound) {
+    public void deserializeNBT(CompoundNBT compound) {
         if (compound == null) return;
         this.rows = BackpackConfig.INSTANCE.rows.get();//compound.contains("rows") ? compound.getInt("rows") : compound.getInt("slots") / 9; // Do this for compatibility with older versions
         this.columns = BackpackConfig.INSTANCE.columns.get();//compound.contains("columns") ? compound.getInt("columns") : compound.getInt("slots") / 9; // Do this for compatibility with older versions

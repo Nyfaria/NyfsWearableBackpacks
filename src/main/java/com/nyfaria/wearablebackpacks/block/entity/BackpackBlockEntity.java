@@ -1,32 +1,20 @@
 package com.nyfaria.wearablebackpacks.block.entity;
 
 import com.nyfaria.wearablebackpacks.backpack.BackpackBEContainer;
-import com.nyfaria.wearablebackpacks.backpack.BackpackContainer;
-import com.nyfaria.wearablebackpacks.backpack.BackpackInventory;
-import com.nyfaria.wearablebackpacks.cap.BackpackBEHolderAttacher;
 import com.nyfaria.wearablebackpacks.init.BlockInit;
-import com.nyfaria.wearablebackpacks.item.BackpackItem;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ChestMenu;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.NetworkHooks;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.ItemStackHelper;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.tileentity.LockableTileEntity;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -35,61 +23,71 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 
-public class BackpackBlockEntity extends BaseContainerBlockEntity implements IAnimatable {
+import javax.annotation.Nullable;
+
+public class BackpackBlockEntity extends LockableTileEntity implements IAnimatable {
     private final AnimationFactory animationFactory = new AnimationFactory(this);
     private boolean accessed = false;
     private int color = 0;
 
-    private NonNullList<ItemStack> items = NonNullList.withSize(36, ItemStack.EMPTY);
-    private CompoundTag backpackTag;
-
-    public BackpackBlockEntity(BlockPos pWorldPosition, BlockState pBlockState) {
-        super(BlockInit.BACKPACK_BE.get(), pWorldPosition, pBlockState);
+    @Override
+    public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
+        load(getBlockState(),pkt.getTag());
     }
 
-    public void setBackpackTag(CompoundTag tag) {
+    private NonNullList<ItemStack> items = NonNullList.withSize(36, ItemStack.EMPTY);
+    private CompoundNBT backpackTag;
+
+    public BackpackBlockEntity() {
+        super(BlockInit.BACKPACK_BE.get());
+    }
+
+    public void setBackpackTag(CompoundNBT tag) {
         this.backpackTag = tag;
         updateBlock();
     }
+
     @Override
     public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this,"controller", 0, this::predicate));
+        data.addAnimationController(new AnimationController(this, "controller", 0, this::predicate));
     }
 
     private <P extends IAnimatable> PlayState predicate(AnimationEvent<P> event) {
         AnimationController controller = event.getController();
-        if(accessed) {
+        if (accessed) {
             controller.setAnimation(new AnimationBuilder().addAnimation("open", true));
             return PlayState.CONTINUE;
         }
-        return  PlayState.STOP;
+        return PlayState.STOP;
     }
+
     public static NonNullList<ItemStack> getInventory(BackpackBlockEntity itemStack) {
         return itemStack.items;
     }
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int pContainerId, Inventory pInventory, Player pPlayer) {
+    public Container createMenu(int pContainerId, PlayerInventory pInventory, PlayerEntity pPlayer) {
         return super.createMenu(pContainerId, pInventory, pPlayer);
     }
 
 
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
+    public void load(BlockState blockState, CompoundNBT pTag) {
+        super.load(blockState, pTag);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(pTag, this.items);
+        ItemStackHelper.loadAllItems(pTag, this.items);
         this.accessed = pTag.getBoolean("accessed");
         this.color = pTag.getInt("color");
         this.backpackTag = pTag.getCompound("backpackTag");
     }
 
-    protected void saveAdditional(CompoundTag pTag) {
-        super.saveAdditional(pTag);
-        ContainerHelper.saveAllItems(pTag, this.items);
+    @Override
+    public CompoundNBT save(CompoundNBT pTag) {
+        ItemStackHelper.saveAllItems(pTag, this.items);
         pTag.putBoolean("accessed", accessed);
-        pTag.putInt("color",color);
+        pTag.putInt("color", color);
         pTag.put("backpackTag", backpackTag);
+        return super.save(pTag);
     }
 
 
@@ -111,12 +109,30 @@ public class BackpackBlockEntity extends BaseContainerBlockEntity implements IAn
         return items.stream().allMatch(ItemStack::isEmpty);
     }
 
+    @Override
+    public void deserializeNBT(CompoundNBT nbt) {
+        super.deserializeNBT(nbt);
+        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+        ItemStackHelper.loadAllItems(nbt, this.items);
+        this.accessed = nbt.getBoolean("accessed");
+        this.color = nbt.getInt("color");
+        this.backpackTag = nbt.getCompound("backpackTag");
+    }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag);
-        return tag;
+    public CompoundNBT serializeNBT() {
+        CompoundNBT nbt = super.serializeNBT();
+        ItemStackHelper.saveAllItems(nbt, this.items);
+        nbt.putBoolean("accessed", accessed);
+        nbt.putInt("color", color);
+        nbt.put("backpackTag", backpackTag);
+        return nbt;
+    }
+
+    @Override
+    public CompoundNBT getUpdateTag() {
+        CompoundNBT tag = new CompoundNBT();
+        return save(tag);
     }
 
     @Override
@@ -126,7 +142,7 @@ public class BackpackBlockEntity extends BaseContainerBlockEntity implements IAn
 
     @Override
     public ItemStack removeItem(int pIndex, int pCount) {
-        ItemStack itemstack = ContainerHelper.removeItem(this.items, pIndex, pCount);
+        ItemStack itemstack = ItemStackHelper.removeItem(this.items, pIndex, pCount);
         if (!itemstack.isEmpty()) {
             this.setChanged();
         }
@@ -135,7 +151,7 @@ public class BackpackBlockEntity extends BaseContainerBlockEntity implements IAn
 
     @Override
     public ItemStack removeItemNoUpdate(int pIndex) {
-        return ContainerHelper.takeItem(items, pIndex);
+        return ItemStackHelper.takeItem(items, pIndex);
     }
 
     @Override
@@ -148,12 +164,13 @@ public class BackpackBlockEntity extends BaseContainerBlockEntity implements IAn
         this.setChanged();
     }
 
+
     @Override
-    public boolean stillValid(Player pPlayer) {
+    public boolean stillValid(PlayerEntity pPlayer) {
         if (this.level.getBlockEntity(this.worldPosition) != this) {
             return false;
         } else {
-            return !(pPlayer.distanceToSqr((double)this.worldPosition.getX() + 0.5D, (double)this.worldPosition.getY() + 0.5D, (double)this.worldPosition.getZ() + 0.5D) > 64.0D);
+            return !(pPlayer.distanceToSqr((double) this.worldPosition.getX() + 0.5D, (double) this.worldPosition.getY() + 0.5D, (double) this.worldPosition.getZ() + 0.5D) > 64.0D);
         }
     }
 
@@ -161,6 +178,7 @@ public class BackpackBlockEntity extends BaseContainerBlockEntity implements IAn
         this.color = color;
         updateBlock();
     }
+
     public int getColor() {
         return color;
     }
@@ -171,31 +189,33 @@ public class BackpackBlockEntity extends BaseContainerBlockEntity implements IAn
     }
 
     @Override
-    protected Component getDefaultName() {
-        return new TextComponent("Backpack");
+    protected ITextComponent getDefaultName() {
+        return new StringTextComponent("Backpack");
     }
 
     @Override
-    protected AbstractContainerMenu createMenu(int pContainerId, Inventory pInventory) {
-        return new BackpackBEContainer(pContainerId, pInventory,this,getBlockPos());
+    protected Container createMenu(int pContainerId, PlayerInventory pInventory) {
+        return new BackpackBEContainer(pContainerId, pInventory, this, getBlockPos());
     }
 
     @Override
     public void clearContent() {
 
     }
+
     public void updateBlock() {
         BlockState blockState = getBlockState();
         this.level.sendBlockUpdated(this.getBlockPos(), blockState, blockState, 3);
         this.setChanged();
     }
+
     @Nullable
     @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
+    public SUpdateTileEntityPacket getUpdatePacket() {
+        return new SUpdateTileEntityPacket(worldPosition, 0, getUpdateTag());
     }
 
-    public CompoundTag getBackpackTag() {
+    public CompoundNBT getBackpackTag() {
         return backpackTag;
     }
 }

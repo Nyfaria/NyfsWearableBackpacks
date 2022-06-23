@@ -1,26 +1,25 @@
 package com.nyfaria.wearablebackpacks.init;
 
 import com.nyfaria.wearablebackpacks.WearableBackpacks;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.Item;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.tags.ITag;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
+import net.minecraft.util.ResourceLocation;
 
 public class TagInit {
 
-    public static final TagKey<Item> BLACKLIST = itemTag("backpack/blacklist");
-    public static final TagKey<EntityType<?>> BACKPACKABLE = entityTag("backpack");
+    public static final ITag.INamedTag<Item> BLACKLIST = itemTag("backpack/blacklist");
+    public static final ITag.INamedTag<EntityType<?>> BACKPACKABLE = entityTag("backpack");
 
     public static void init() {
     }
 
-    private static TagKey<Item> itemTag(String path) {
-        return ItemTags.create(new ResourceLocation(WearableBackpacks.MODID, path));
+    private static ITag.INamedTag<Item> itemTag(String path) {
+        return ItemTags.createOptional(new ResourceLocation(WearableBackpacks.MODID, path));
     }
-    private static TagKey<EntityType<?>> entityTag(String pName) {
-        return TagKey.create(Registry.ENTITY_TYPE_REGISTRY, new ResourceLocation(WearableBackpacks.MODID,pName));
+    private static ITag.INamedTag<EntityType<?>> entityTag(String pName) {
+        return EntityTypeTags.createOptional(new ResourceLocation(WearableBackpacks.MODID,pName));
     }
 }

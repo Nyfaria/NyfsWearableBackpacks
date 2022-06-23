@@ -4,22 +4,18 @@ import com.google.common.collect.Lists;
 import com.nyfaria.wearablebackpacks.backpack.BackpackInventory;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import dev._100media.capabilitysyncer.core.ItemStackCapability;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
-import net.minecraft.world.Container;
-import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraft.inventory.ItemStackHelper;
+import net.minecraft.item.ItemStack;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootTable;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Consumer;
 
 public class BackpackHolder extends ItemStackCapability {
     private final BackpackInventory inventory;
@@ -31,17 +27,17 @@ public class BackpackHolder extends ItemStackCapability {
 
 
     @Override
-    public CompoundTag serializeNBT(boolean savingToDisk) {
-        CompoundTag tag = new CompoundTag();
-        ContainerHelper.saveAllItems(tag,inventory.getStacks());
+    public CompoundNBT serializeNBT(boolean savingToDisk) {
+        CompoundNBT tag = new CompoundNBT();
+        ItemStackHelper.saveAllItems(tag,inventory.getStacks());
         return tag;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt, boolean readingFromDisk) {
+    public void deserializeNBT(CompoundNBT nbt, boolean readingFromDisk) {
         if (nbt == null) return;
         NonNullList<ItemStack> stacks = NonNullList.withSize(BackpackConfig.INSTANCE.rows.get() * BackpackConfig.INSTANCE.columns.get(), ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(nbt,stacks);
+        ItemStackHelper.loadAllItems(nbt,stacks);
         inventory.setStacks(stacks);
     }
 
@@ -95,8 +91,8 @@ public class BackpackHolder extends ItemStackCapability {
         }
 
         while(pEmptySlotsCount - pStacks.size() - list.size() > 0 && !list.isEmpty()) {
-            ItemStack itemstack2 = list.remove(Mth.nextInt(pRand, 0, list.size() - 1));
-            int i = Mth.nextInt(pRand, 1, itemstack2.getCount() / 2);
+            ItemStack itemstack2 = list.remove(MathHelper.nextInt(pRand, 0, list.size() - 1));
+            int i = MathHelper.nextInt(pRand, 1, itemstack2.getCount() / 2);
             ItemStack itemstack1 = itemstack2.split(i);
             if (itemstack2.getCount() > 1 && pRand.nextBoolean()) {
                 list.add(itemstack2);

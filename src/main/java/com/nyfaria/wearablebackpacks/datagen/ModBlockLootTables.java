@@ -1,15 +1,15 @@
 package com.nyfaria.wearablebackpacks.datagen;
 
 import com.nyfaria.wearablebackpacks.init.BlockInit;
-import net.minecraft.data.loot.BlockLoot;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.OreBlock;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.block.Block;
+import net.minecraft.block.OreBlock;
+import net.minecraft.data.loot.BlockLootTables;
+import net.minecraft.item.Items;
+import net.minecraftforge.fml.RegistryObject;
 
 import java.util.stream.Collectors;
 
-public class ModBlockLootTables extends BlockLoot {
+public class ModBlockLootTables extends BlockLootTables {
     @Override
     protected void addTables() {
         BlockInit.BLOCKS.getEntries().stream()

@@ -1,6 +1,5 @@
 package com.nyfaria.wearablebackpacks;
 
-import com.nyfaria.wearablebackpacks.cap.BackpackBEHolderAttacher;
 import com.nyfaria.wearablebackpacks.cap.BackpackHolderAttacher;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import com.nyfaria.wearablebackpacks.datagen.*;
@@ -14,8 +13,8 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,14 +33,13 @@ public class WearableBackpacks {
         BlockInit.BLOCKS.register(bus);
         BlockInit.BLOCK_ENTITIES.register(bus);
         ContainerInit.CONTAINERS.register(bus);
-        BackpackHolderAttacher.register();
-        BackpackBEHolderAttacher.register();
 
     }
 
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         NetworkHandler.register();
+        BackpackHolderAttacher.register();
     }
 
     @SubscribeEvent
