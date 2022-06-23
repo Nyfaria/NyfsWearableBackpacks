@@ -8,6 +8,8 @@ import com.nyfaria.wearablebackpacks.item.BackpackItem;
 import com.nyfaria.wearablebackpacks.util.Dimension;
 import com.nyfaria.wearablebackpacks.util.Point;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -17,29 +19,27 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
 
-public class BackpackContainer extends AbstractContainerMenu {
+public class BackpackBEContainer extends AbstractContainerMenu {
 
     public final int rows;
     public final int columns;
     private final int padding = 8;
     private final int titleSpace = 10;
-    private final boolean isItem;
     private final BlockPos pos;
-    private final int ownerId;
+    private final Container container;
 
-    public BackpackContainer(int id, Inventory player, BackpackInventory backpackInventory, BlockPos pos, boolean isItem, int ownerId) {
-        super(ContainerInit.BACKPACK_CONTAINER.get(), id);
+    public BackpackBEContainer(int id, Inventory player) {
+        this(id, player, new SimpleContainer(BackpackConfig.INSTANCE.rows.get() * BackpackConfig.INSTANCE.columns.get()),BlockPos.ZERO);
+    }
+    public BackpackBEContainer(int id, Inventory player, Container backpackInventory, BlockPos pos) {
+        super(ContainerInit.BACKPACK_BE_CONTAINER.get(), id);
         this.rows = BackpackConfig.INSTANCE.rows.get();
         this.columns = BackpackConfig.INSTANCE.columns.get();
-        this.isItem = isItem;
         this.pos = pos;
-        this.ownerId = ownerId;
+        container = backpackInventory;
         this.addSlots(this.rows, this.columns, backpackInventory, player);
-
-        ((LivingEntity) player.player.level.getEntity(ownerId)).getItemBySlot(EquipmentSlot.CHEST).getOrCreateTag().putBoolean("accessed", true);
+        container.startOpen(player.player);
 
     }
 
@@ -58,7 +58,7 @@ public class BackpackContainer extends AbstractContainerMenu {
     }
 
     @SuppressWarnings("unused")
-    private void addSlots(int rows, int columns, IItemHandler inventory, Inventory player) {
+    private void addSlots(int rows, int columns, Container inventory, Inventory player) {
         Dimension dimension = getDimension();
         int startX = 8;
         int startY = rows < 9 ? 17 : 8;
@@ -68,7 +68,7 @@ public class BackpackContainer extends AbstractContainerMenu {
             for (int column = 0; column < columns; column++) {
                 Point getBackpackSlotPosition = getBackpackSlotPosition(dimension, column, row);
                 int index = row * columns + column;
-                this.addSlot(new SlotItemHandler(inventory, index, getBackpackSlotPosition.x, getBackpackSlotPosition.y));
+                this.addSlot(new BackpackSlot(inventory, index, getBackpackSlotPosition.x, getBackpackSlotPosition.y));
             }
         }
 
@@ -94,7 +94,7 @@ public class BackpackContainer extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player playerIn) {
-        return isItem || playerIn.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) < 2;
+        return playerIn.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) < 64;
     }
 
     @Override
@@ -122,26 +122,10 @@ public class BackpackContainer extends AbstractContainerMenu {
         return returnStack;
     }
 
+
     @Override
     public void removed(Player pPlayer) {
-        if (isItem) {
-            ItemStack chest = ((LivingEntity) pPlayer.level.getEntity(ownerId)).getItemBySlot(EquipmentSlot.CHEST);
-            ItemStack hand = ((LivingEntity) pPlayer.level.getEntity(ownerId)).getItemBySlot(EquipmentSlot.MAINHAND);
-            if (chest.is(ItemInit.BACKPACK.get())) {
-                chest.getOrCreateTag().putBoolean("accessed", false);
-            } else if (hand.is(ItemInit.BACKPACK.get())) {
-                hand.getOrCreateTag().putBoolean("accessed", false);
-            } else {
-                ((BackpackBlockEntity) pPlayer.level.getBlockEntity(pos)).setAccessed(true);
-            }
-
-        } else {
-            BlockEntity blockEntity = pPlayer.level.getBlockEntity(pos);
-            if (blockEntity != null) {
-                ((BackpackBlockEntity) blockEntity).setAccessed(true);
-                ((BackpackBlockEntity) blockEntity).updateBlock();
-            }
-        }
+        container.stopOpen(pPlayer);
         super.removed(pPlayer);
     }
 

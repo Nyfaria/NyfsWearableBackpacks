@@ -31,10 +31,15 @@ public class ModLangProvider extends LanguageProvider {
 
     @Override
     protected void addTranslations() {
-
         ItemInit.ITEMS.getEntries().forEach(this::itemLang);
         EntityInit.ENTITIES.getEntries().forEach(this::entityLang);
         BlockInit.BLOCKS.getEntries().forEach(this::blockLang);
+        add("message.wearablebackpacks.limit","You already have a backpack equipped.");
+        add("message.wearablebackpacks.chestplate","You can't equip a backpack while wearing a chestplate.");
+        add("message.wearablebackpacks.sneak_place","Sneak and right click ground \nwith empty hand to unequip.");
+        add("message.wearablebackpacks.place","Place down and break \nwhile sneaking to equip");
+        add("keys.category.wearablebackpacks","Wearable Backpacks");
+        add("keys.wearablebackpacks.open_backpack","Open Backpack");
     }
 
 

@@ -17,7 +17,7 @@ public class BlockInit {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MODID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, MODID);
 
-    public static final RegistryObject<Block> BACKPACK = BLOCKS.register("backpack", () -> new BackpackBlock(BlockBehaviour.Properties.of(Material.DIRT, MaterialColor.COLOR_BROWN)));
+    public static final RegistryObject<Block> BACKPACK = BLOCKS.register("backpack", () -> new BackpackBlock(BlockBehaviour.Properties.of(Material.DIRT, MaterialColor.COLOR_BROWN).strength(2,3)));
 
     public static final RegistryObject<BlockEntityType<?>> BACKPACK_BE = BLOCK_ENTITIES.register("backpack", () -> BlockEntityType.Builder.of(BackpackBlockEntity::new, BACKPACK.get()).build(null));
 

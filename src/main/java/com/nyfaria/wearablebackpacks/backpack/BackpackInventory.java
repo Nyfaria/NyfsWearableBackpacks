@@ -1,5 +1,6 @@
 package com.nyfaria.wearablebackpacks.backpack;
 
+import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import com.nyfaria.wearablebackpacks.init.TagInit;
 import com.nyfaria.wearablebackpacks.item.BackpackItem;
 import net.minecraft.core.NonNullList;
@@ -14,12 +15,12 @@ public class BackpackInventory extends ItemStackHandler {
     private final boolean remote;
     public int rows;
     public int columns;
-    private final NonNullList<ItemStack> stacks;
+    private NonNullList<ItemStack> stacks;
 
     public BackpackInventory(boolean remote) {
         this.remote = remote;
-        this.rows = 3;
-        this.columns = 9;
+        this.rows = BackpackConfig.INSTANCE.rows.get();
+        this.columns = BackpackConfig.INSTANCE.columns.get();
         stacks = NonNullList.withSize(this.rows * this.columns, ItemStack.EMPTY);
     }
 
@@ -118,7 +119,9 @@ public class BackpackInventory extends ItemStackHandler {
         return this.stacks;
     }
 
-
+    public void setStacks(NonNullList<ItemStack> stacks) {
+        this.stacks = stacks;
+    }
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag compound = new CompoundTag();
@@ -131,8 +134,8 @@ public class BackpackInventory extends ItemStackHandler {
     @Override
     public void deserializeNBT(CompoundTag compound) {
         if (compound == null) return;
-        this.rows = compound.contains("rows") ? compound.getInt("rows") : compound.getInt("slots") / 9; // Do this for compatibility with older versions
-        this.columns = compound.contains("columns") ? compound.getInt("columns") : compound.getInt("slots") / 9; // Do this for compatibility with older versions
+        this.rows = BackpackConfig.INSTANCE.rows.get();//compound.contains("rows") ? compound.getInt("rows") : compound.getInt("slots") / 9; // Do this for compatibility with older versions
+        this.columns = BackpackConfig.INSTANCE.columns.get();//compound.contains("columns") ? compound.getInt("columns") : compound.getInt("slots") / 9; // Do this for compatibility with older versions
         this.stacks.clear();
         int size = compound.contains("stacks") ? compound.getInt("stacks") : this.rows * this.columns; // Do this for compatibility with older versions
 

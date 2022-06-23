@@ -2,6 +2,7 @@ package com.nyfaria.wearablebackpacks;
 
 import com.nyfaria.wearablebackpacks.cap.BackpackBEHolderAttacher;
 import com.nyfaria.wearablebackpacks.cap.BackpackHolderAttacher;
+import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import com.nyfaria.wearablebackpacks.datagen.*;
 import com.nyfaria.wearablebackpacks.init.*;
 import com.nyfaria.wearablebackpacks.network.NetworkHandler;
@@ -9,7 +10,9 @@ import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
@@ -23,6 +26,7 @@ public class WearableBackpacks {
     public static final Logger LOGGER = LogManager.getLogger();
 
     public WearableBackpacks() {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, BackpackConfig.CONFIG_SPEC);
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         TagInit.init();
         ItemInit.ITEMS.register(bus);

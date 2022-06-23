@@ -1,10 +1,15 @@
 package com.nyfaria.wearablebackpacks.item;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.nyfaria.wearablebackpacks.WearableBackpacks;
 import com.nyfaria.wearablebackpacks.backpack.BackpackContainer;
 import com.nyfaria.wearablebackpacks.backpack.BackpackInventory;
+import com.nyfaria.wearablebackpacks.backpack.BackpackMaterial;
+import com.nyfaria.wearablebackpacks.block.entity.BackpackBlockEntity;
+import com.nyfaria.wearablebackpacks.cap.BackpackBEHolderAttacher;
 import com.nyfaria.wearablebackpacks.cap.BackpackHolderAttacher;
 import com.nyfaria.wearablebackpacks.client.renderer.SimpleItemRenderer;
+import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import com.nyfaria.wearablebackpacks.init.TagInit;
 import com.nyfaria.wearablebackpacks.tooltip.BackpackTooltip;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -12,6 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -24,6 +30,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
@@ -33,7 +40,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -65,8 +75,9 @@ import java.util.function.Consumer;
 public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLeatherItem {
     private final Block block;
     private final AnimationFactory animationFactory = new AnimationFactory(this);
+
     public BackpackItem(Block pBlock, Properties pProperties) {
-        super(ArmorMaterials.LEATHER,EquipmentSlot.CHEST,pProperties);
+        super(BackpackMaterial.LEATHER, EquipmentSlot.CHEST, pProperties);
         this.block = pBlock;
     }
 
@@ -74,9 +85,10 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
         return BackpackHolderAttacher.getBackpackHolderUnwrap(itemStack).getInventory();
     }
 
+
     @Override
     public boolean isEnchantable(ItemStack p_41456_) {
-        return true;
+        return BackpackConfig.INSTANCE.canEnchantBackpack.get();
     }
 
 
@@ -85,12 +97,20 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
     public void appendHoverText(@NotNull ItemStack stack, Level worldIn, @NotNull List<Component> tooltip, @NotNull TooltipFlag flagIn) {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)) {
-
+            if(Minecraft.getInstance().player.getItemBySlot(EquipmentSlot.CHEST) == stack){
+                tooltip.add(new TranslatableComponent("message.wearablebackpacks.sneak_place"));
+            } else {
+                tooltip.add(new TranslatableComponent("message.wearablebackpacks.place"));
+            }
         } else {
-            tooltip.add(new TranslatableComponent("Hold " + "\u00A7e" + "Shift" + "\u00A77" + " for More Information"));
+            tooltip.add(new TranslatableComponent("Hold " + "\u00A7e" + "SHIFT" + "\u00A77" + " for More Info"));
         }
     }
+
     public InteractionResult useOn(UseOnContext pContext) {
+        if(pContext.getClickedFace() != Direction.UP || !pContext.getLevel().getBlockState(pContext.getClickedPos()).isCollisionShapeFullBlock(pContext.getLevel(),pContext.getClickedPos()) ){
+            return super.useOn(pContext);
+        }
         InteractionResult interactionresult = this.place(new BlockPlaceContext(pContext));
         if (!interactionresult.consumesAction() && this.isEdible()) {
             InteractionResult interactionresult1 = this.use(pContext.getLevel(), pContext.getPlayer(), pContext.getHand()).getResult();
@@ -99,13 +119,14 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
             return interactionresult;
         }
     }
+
     @Override
     public InteractionResultHolder<ItemStack> use(@NotNull Level worldIn, Player playerIn, @NotNull InteractionHand handIn) {
 
         ItemStack stack = playerIn.getItemInHand(handIn);
-        if (!playerIn.isShiftKeyDown()) {
+        if (!playerIn.isShiftKeyDown() && BackpackConfig.INSTANCE.canOpenWithHand.get()) {
             if (!worldIn.isClientSide()) {
-                NetworkHooks.openGui((ServerPlayer) playerIn, new ContainerProvider(stack.getDisplayName(), getInventory(stack),playerIn,playerIn), a -> {
+                NetworkHooks.openGui((ServerPlayer) playerIn, new ContainerProvider(stack.getDisplayName(), getInventory(stack), playerIn, playerIn), a -> {
                     a.writeNbt(getInventory(stack).serializeNBT());
                 });
             }
@@ -116,14 +137,21 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
 
 
     @Override
+    public int getDefense() {
+        return BackpackConfig.INSTANCE.backpackDefenseLevel.get();
+    }
+
+    @Override
     public Optional<TooltipComponent> getTooltipImage(ItemStack itemStack) {
-        if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)) {
-            NonNullList<ItemStack> nonnulllist = NonNullList.create();
-            if (getInventory(itemStack) != null) {
-                return Optional.of(new BackpackTooltip(getInventory(itemStack).getStacks(), 64));
+        if(BackpackConfig.INSTANCE.inventoryToolTip.get()) {
+            if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)) {
+                NonNullList<ItemStack> nonnulllist = NonNullList.create();
+                if (getInventory(itemStack) != null) {
+                    return Optional.of(new BackpackTooltip(getInventory(itemStack).getStacks(), 64));
+                }
+            } else {
+                return Optional.empty();
             }
-        } else {
-            return Optional.empty();
         }
         return Optional.empty();
     }
@@ -147,24 +175,26 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
 
     @Override
     public int getMaxDamage(ItemStack stack) {
-        return 200;
+        return BackpackConfig.INSTANCE.backpackDurability.get();
     }
 
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack stack, ItemStack inputItem, Slot slot, ClickAction clickAction, Player player, SlotAccess slotAccess) {
-        if (clickAction == ClickAction.SECONDARY) {
-            if (!inputItem.is(TagInit.BLACKLIST) && !stack.isEmpty()) {
-                BackpackInventory qi = getInventory(stack);
-                int slots = qi.getSlots();
-                for (int s = 0; s < slots; s++) {
-                    ItemStack currentStack = qi.getStackInSlot(s);
-                    ItemStack rem2 = inputItem.copy();
-                    if (currentStack.getItem() == inputItem.getItem() || currentStack.isEmpty()) {
-                        rem2 = qi.insertItem(s, rem2, false);
+        if(BackpackConfig.INSTANCE.bundleAdd.get()) {
+            if (clickAction == ClickAction.SECONDARY) {
+                if (!inputItem.is(TagInit.BLACKLIST) && !stack.isEmpty()) {
+                    BackpackInventory qi = getInventory(stack);
+                    int slots = qi.getSlots();
+                    for (int s = 0; s < slots; s++) {
+                        ItemStack currentStack = qi.getStackInSlot(s);
+                        ItemStack rem2 = inputItem.copy();
+                        if (currentStack.getItem() == inputItem.getItem() || currentStack.isEmpty()) {
+                            rem2 = qi.insertItem(s, rem2, false);
+                        }
+                        inputItem.setCount(rem2.getCount());
                     }
-                    inputItem.setCount(rem2.getCount());
+                    return true;
                 }
-                return true;
             }
         }
         return false;
@@ -174,9 +204,11 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
     public boolean canBeDepleted() {
         return true;
     }
+
     protected boolean placeBlock(BlockPlaceContext pContext, BlockState pState) {
         return pContext.getLevel().setBlock(pContext.getClickedPos(), pState, 11);
     }
+
     public InteractionResult place(BlockPlaceContext pContext) {
         if (!pContext.canPlace()) {
             return InteractionResult.FAIL;
@@ -201,7 +233,7 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
                         this.updateCustomBlockEntityTag(blockpos, level, player, itemstack, blockstate1);
                         blockstate1.getBlock().setPlacedBy(level, blockpos, blockstate1, player, itemstack);
                         if (player instanceof ServerPlayer) {
-                            CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer)player, blockpos, itemstack);
+                            CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, blockpos, itemstack);
                         }
                     }
 
@@ -217,6 +249,7 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
             }
         }
     }
+
     private BlockState updateBlockStateFromTag(BlockPos pPos, Level pLevel, ItemStack pStack, BlockState pState) {
         BlockState blockstate = pState;
         CompoundTag compoundtag = pStack.getTag();
@@ -224,7 +257,7 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
             CompoundTag compoundtag1 = compoundtag.getCompound("BlockStateTag");
             StateDefinition<Block, BlockState> statedefinition = pState.getBlock().getStateDefinition();
 
-            for(String s : compoundtag1.getAllKeys()) {
+            for (String s : compoundtag1.getAllKeys()) {
                 Property<?> property = statedefinition.getProperty(s);
                 if (property != null) {
                     String s1 = compoundtag1.get(s).getAsString();
@@ -239,12 +272,15 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
 
         return blockstate;
     }
+
     private static <T extends Comparable<T>> BlockState updateState(BlockState pState, Property<T> pProperty, String pValueIdentifier) {
         return pProperty.getValue(pValueIdentifier).map((p_40592_) -> {
             return pState.setValue(pProperty, p_40592_);
         }).orElse(pState);
     }
-    @Deprecated //Forge: Use more sensitive version {@link BlockItem#getPlaceSound(BlockState, IBlockReader, BlockPos, Entity) }
+
+    @Deprecated
+    //Forge: Use more sensitive version {@link BlockItem#getPlaceSound(BlockState, IBlockReader, BlockPos, Entity) }
     protected SoundEvent getPlaceSound(BlockState pState) {
         return pState.getSoundType().getPlaceSound();
     }
@@ -253,32 +289,40 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
     protected SoundEvent getPlaceSound(BlockState state, Level world, BlockPos pos, Player entity) {
         return state.getSoundType(world, pos, entity).getPlaceSound();
     }
+
     public Block getBlock() {
         return this.getBlockRaw() == null ? null : this.getBlockRaw().delegate.get();
     }
+
     private Block getBlockRaw() {
         return this.block;
     }
+
     @Nullable
     protected BlockState getPlacementState(BlockPlaceContext pContext) {
         BlockState blockstate = this.getBlock().getStateForPlacement(pContext);
         return blockstate != null && this.canPlace(pContext, blockstate) ? blockstate : null;
     }
+
     protected boolean mustSurvive() {
         return true;
     }
+
     protected boolean canPlace(BlockPlaceContext pContext, BlockState pState) {
         Player player = pContext.getPlayer();
         CollisionContext collisioncontext = player == null ? CollisionContext.empty() : CollisionContext.of(player);
         return (!this.mustSurvive() || pState.canSurvive(pContext.getLevel(), pContext.getClickedPos())) && pContext.getLevel().isUnobstructed(pState, pContext.getClickedPos(), collisioncontext);
     }
+
     @Nullable
     public BlockPlaceContext updatePlacementContext(BlockPlaceContext pContext) {
         return pContext;
     }
+
     protected boolean updateCustomBlockEntityTag(BlockPos pPos, Level pLevel, @Nullable Player pPlayer, ItemStack pStack, BlockState pState) {
         return updateCustomBlockEntityTag(pLevel, pPlayer, pPos, pStack);
     }
+
     @Nullable
     public static CompoundTag getBlockEntityData(ItemStack p_186337_) {
         return p_186337_.getTagElement("BlockEntityTag");
@@ -291,13 +335,15 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
             return false;
         } else {
             CompoundTag compoundtag = getBlockEntityData(pStack);
-            if (compoundtag != null) {
-                BlockEntity blockentity = pLevel.getBlockEntity(pPos);
-                if (blockentity != null) {
+            BlockEntity blockentity = pLevel.getBlockEntity(pPos);
+            if (blockentity != null) {
+                ((BackpackBlockEntity) blockentity).setColor(((DyeableLeatherItem) pStack.getItem()).getColor(pStack));
+                ((BackpackBlockEntity) blockentity).setItems((BackpackHolderAttacher.getBackpackHolderUnwrap(pStack).getInventory().getStacks()));
+                ((BackpackBlockEntity) blockentity).setBackpackTag(pStack.getTag());
+                if (compoundtag != null) {
                     if (!pLevel.isClientSide && blockentity.onlyOpCanSetNbt() && (pPlayer == null || !pPlayer.canUseGameMasterBlocks())) {
                         return false;
                     }
-
                     CompoundTag compoundtag1 = blockentity.saveWithoutMetadata();
                     CompoundTag compoundtag2 = compoundtag1.copy();
                     compoundtag1.merge(compoundtag);
@@ -315,14 +361,16 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
 
     @Override
     public void initializeClient(Consumer<IItemRenderProperties> consumer) {
-        consumer.accept(new IItemRenderProperties(){
+        consumer.accept(new IItemRenderProperties() {
             @Override
             public HumanoidModel<?> getArmorModel(LivingEntity entityLiving, ItemStack itemStack,
                                                   EquipmentSlot armorSlot, HumanoidModel<?> _default) {
                 return (HumanoidModel<?>) GeoArmorRenderer.getRenderer(BackpackItem.this.getClass(), entityLiving).applyEntityStats(_default)
                         .applySlot(armorSlot).setCurrentItem(entityLiving, itemStack, armorSlot);
             }
+
             SimpleItemRenderer<BackpackItem> renderer = new SimpleItemRenderer<>();
+
             @Override
             public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
                 return renderer;
@@ -333,6 +381,17 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
     @Override
     public void registerControllers(AnimationData data) {
 
+    }
+
+    @Override
+    public boolean canEquip(ItemStack stack, EquipmentSlot armorType, Entity entity) {
+        return BackpackConfig.INSTANCE.canEquipFromInventory.get();
+    }
+
+    @Nullable
+    @Override
+    public Entity createEntity(Level level, Entity location, ItemStack stack) {
+        return super.createEntity(level, location, stack);
     }
 
     @Override
@@ -365,8 +424,7 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
         @Nullable
         @Override
         public AbstractContainerMenu createMenu(int id, @NotNull Inventory playerInv, @NotNull Player player) {
-            return new BackpackContainer(id, playerInv, this.inventory, 3,
-                    9, pos , isItem, ownerId);
+            return new BackpackContainer(id, playerInv, this.inventory, pos, isItem, ownerId);
         }
 
     }

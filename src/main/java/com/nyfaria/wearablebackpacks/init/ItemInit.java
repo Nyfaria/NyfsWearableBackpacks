@@ -11,5 +11,5 @@ import net.minecraftforge.registries.RegistryObject;
 public class ItemInit {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, WearableBackpacks.MODID);
 
-    public static final RegistryObject<Item> BACKPACK = ITEMS.register("backpack", () -> new BackpackItem(BlockInit.BACKPACK.get(),new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_COMBAT)));
+    public static final RegistryObject<BackpackItem> BACKPACK = ITEMS.register("backpack", () -> new BackpackItem(BlockInit.BACKPACK.get(),new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_COMBAT)));
 }

@@ -1,6 +1,9 @@
 {
   "credit": "Made with Blockbench",
   "parent": "builtin/entity",
+  "textures": {
+    "particle": "wearablebackpacks:block/backpack"
+  },
   "texture_size": [
     64,
     32

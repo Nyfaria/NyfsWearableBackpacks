@@ -2,7 +2,7 @@ package com.nyfaria.wearablebackpacks.network;
 
 import com.google.common.collect.ImmutableList;
 import com.nyfaria.wearablebackpacks.WearableBackpacks;
-import com.nyfaria.wearablebackpacks.network.packets.PacketRename;
+import com.nyfaria.wearablebackpacks.network.packets.PacketOpenBackpack;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -22,7 +22,7 @@ public class NetworkHandler {
 
     public static void register() {
         List<BiConsumer<SimpleChannel, Integer>> packets = ImmutableList.<BiConsumer<SimpleChannel, Integer>>builder()
-                .add(PacketRename::register)
+                .add(PacketOpenBackpack::register)
                 .build();
 
         packets.forEach(consumer -> consumer.accept(INSTANCE, getNextId()));

@@ -3,7 +3,9 @@
   "package": "com.nyfaria.wearablebackpacks.mixin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "${mod_id}.refmap.json",
-  "mixins": [],
+  "mixins": [
+    "SlotMixin"
+  ],
   "client": [],
   "minVersion": "0.8.4"
 }
