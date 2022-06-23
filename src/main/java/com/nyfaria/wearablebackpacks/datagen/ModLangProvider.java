@@ -10,6 +10,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.data.LanguageProvider;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class ModLangProvider extends LanguageProvider {
     protected void itemLang(Supplier<Item> entry) {
 
         List<String> words = new ArrayList<>();
-        Arrays.stream(entry.get().getRegistryName().getPath().split("_")).toList().forEach(e -> {
+        Arrays.stream(ForgeRegistries.ITEMS.getKey(entry.get()).getPath().split("_")).toList().forEach(e -> {
 
                     words.add(checkReplace(e));
 
@@ -59,7 +60,7 @@ public class ModLangProvider extends LanguageProvider {
 
     protected void blockLang(Supplier<Block> entry) {
         List<String> words = new ArrayList<>();
-        Arrays.stream(entry.get().getRegistryName().getPath().split("_")).toList().forEach(e -> {
+        Arrays.stream(ForgeRegistries.BLOCKS.getKey(entry.get()).getPath().split("_")).toList().forEach(e -> {
 
                     words.add(checkReplace(e));
 
@@ -72,7 +73,7 @@ public class ModLangProvider extends LanguageProvider {
 
     protected void entityLang(Supplier<EntityType<?>> entry) {
         List<String> words = new ArrayList<>();
-        Arrays.stream(entry.get().getRegistryName().getPath().split("_")).toList().forEach(e -> {
+        Arrays.stream(ForgeRegistries.ENTITIES.getKey(entry.get()).getPath().split("_")).toList().forEach(e -> {
 
                     words.add(checkReplace(e));
 

@@ -38,7 +38,7 @@ public class BackpackContainerScreen extends AbstractContainerScreen<BackpackCon
         bufferBuilder.vertex(matrices, (float) x1, (float) y0, (float) z).uv(u1, v0).endVertex();
         bufferBuilder.vertex(matrices, (float) x0, (float) y0, (float) z).uv(u0, v0).endVertex();
         bufferBuilder.end();
-        BufferUploader.end(bufferBuilder);
+        BufferUploader.draw(bufferBuilder.end());
     }
 
     @Override

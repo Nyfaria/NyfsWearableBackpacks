@@ -38,6 +38,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.registries.ForgeRegistries;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CommonForgeEvents {
@@ -86,7 +87,7 @@ public class CommonForgeEvents {
             if (livingEntity.getType().is(TagInit.BACKPACKABLE)) {
                 if (event.getWorld().random.nextInt(100) < BackpackConfig.INSTANCE.entityBackpackChance.get()) {
                     ItemStack backpack = new ItemStack(ItemInit.BACKPACK.get());
-                    unpackLootTable(new ResourceLocation(WearableBackpacks.MODID, "backpack/" + livingEntity.getType().getRegistryName().getNamespace() + "/" + livingEntity.getType().getRegistryName().getPath()), livingEntity.level, livingEntity.blockPosition(), livingEntity.getRandom().nextLong(), backpack);
+                    unpackLootTable(new ResourceLocation(WearableBackpacks.MODID, "backpack/" + ForgeRegistries.ENTITIES.getKey(livingEntity.getType()).getNamespace() + "/" + ForgeRegistries.ENTITIES.getKey(livingEntity.getType()).getPath()), livingEntity.level, livingEntity.blockPosition(), livingEntity.getRandom().nextLong(), backpack);
                     livingEntity.setItemSlot(EquipmentSlot.CHEST, backpack);
                     livingEntity.setDropChance(EquipmentSlot.CHEST, 1.0f);
                 }

@@ -6,7 +6,7 @@ import com.nyfaria.wearablebackpacks.init.ItemInit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -173,9 +173,9 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
                         }
                     } else {
                         if (pPlayer.getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get()) && !pLevel.isClientSide) {
-                            pPlayer.sendMessage(new TranslatableComponent("message.wearablebackpacks.limit"), UUID.randomUUID());
+                            pPlayer.displayClientMessage(Component.translatable("message.wearablebackpacks.limit"), true);
                         } else if(!pLevel.isClientSide) {
-                            pPlayer.sendMessage(new TranslatableComponent("message.wearablebackpacks.chestplate"), UUID.randomUUID());
+                            pPlayer.displayClientMessage(Component.translatable("message.wearablebackpacks.chestplate"), true);
                         }
                         return false;
                     }

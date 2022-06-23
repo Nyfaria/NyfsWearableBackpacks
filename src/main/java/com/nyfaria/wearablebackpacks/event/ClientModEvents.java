@@ -49,7 +49,6 @@ public class ClientModEvents {
         GeoArmorRenderer.registerArmorRenderer(BackpackItem.class, SimpleArmorRenderer::new);
         OPEN_BACKPACK = new KeyMapping("keys.wearablebackpacks.open_backpack", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM,InputConstants.KEY_B, "keys.category.wearablebackpacks");
         ClientRegistry.registerKeyBinding(OPEN_BACKPACK);
-        CauldronInteraction.WATER.put(ItemInit.BACKPACK.get(),CauldronInteraction.DYED_ITEM);
     }
 
     @SubscribeEvent

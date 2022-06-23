@@ -5,6 +5,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.SoundDefinition;
 import net.minecraftforge.common.data.SoundDefinitionsProvider;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class ModSoundProvider extends SoundDefinitionsProvider {
@@ -19,6 +20,6 @@ public class ModSoundProvider extends SoundDefinitionsProvider {
     }
 
     public void reSound(RegistryObject<SoundEvent> entry){
-        add(entry,SoundDefinition.definition().with(sound(entry.get().getRegistryName())));
+        add(entry,SoundDefinition.definition().with(sound(ForgeRegistries.SOUND_EVENTS.getKey(entry.get()).getPath())));
     }
 }

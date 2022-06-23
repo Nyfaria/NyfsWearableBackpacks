@@ -5,6 +5,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.BlockModelBuilder;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import static com.nyfaria.wearablebackpacks.WearableBackpacks.MODID;
 
@@ -43,6 +44,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
     }
 
     protected String getName(Block item) {
-        return item.getRegistryName().getPath();
+        return ForgeRegistries.BLOCKS.getKey(item).getPath();
     }
 }

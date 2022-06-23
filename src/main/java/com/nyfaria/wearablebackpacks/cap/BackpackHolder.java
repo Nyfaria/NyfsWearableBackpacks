@@ -4,9 +4,12 @@ import com.google.common.collect.Lists;
 import com.nyfaria.wearablebackpacks.backpack.BackpackInventory;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import dev._100media.capabilitysyncer.core.ItemStackCapability;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.Util;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.ItemStack;
@@ -50,8 +53,8 @@ public class BackpackHolder extends ItemStackCapability {
     }
 
     public void fill(LootContext pContext, LootTable pTable) {
-        List<ItemStack> list = pTable.getRandomItems(pContext);
-        Random random = pContext.getRandom();
+        ObjectArrayList<ItemStack> list = pTable.getRandomItems(pContext);
+        RandomSource random = pContext.getRandom();
         List<Integer> list1 = getAvailableSlots(inventory, random);
         shuffleAndSplitItems(list, list1.size(), random);
 
@@ -68,8 +71,8 @@ public class BackpackHolder extends ItemStackCapability {
         }
 
     }
-    private List<Integer> getAvailableSlots(BackpackInventory pInventory, Random pRand) {
-        List<Integer> list = Lists.newArrayList();
+    private List<Integer> getAvailableSlots(BackpackInventory pInventory, RandomSource pRand) {
+        ObjectArrayList<Integer> list = new ObjectArrayList();
 
         for(int i = 0; i < pInventory.getStacks().size(); ++i) {
             if (pInventory.getStackInSlot(i).isEmpty()) {
@@ -77,11 +80,11 @@ public class BackpackHolder extends ItemStackCapability {
             }
         }
 
-        Collections.shuffle(list, pRand);
+        Util.shuffle(list, pRand);
         return list;
     }
-    private void shuffleAndSplitItems(List<ItemStack> pStacks, int pEmptySlotsCount, Random pRand) {
-        List<ItemStack> list = Lists.newArrayList();
+    private void shuffleAndSplitItems(ObjectArrayList<ItemStack> pStacks, int pEmptySlotsCount, RandomSource pRand) {
+        ObjectArrayList<ItemStack> list = new ObjectArrayList();
         Iterator<ItemStack> iterator = pStacks.iterator();
 
         while(iterator.hasNext()) {
@@ -112,6 +115,6 @@ public class BackpackHolder extends ItemStackCapability {
         }
 
         pStacks.addAll(list);
-        Collections.shuffle(pStacks, pRand);
+        Util.shuffle(pStacks, pRand);
     }
 }

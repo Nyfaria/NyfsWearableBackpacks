@@ -1,12 +1,12 @@
 package com.nyfaria.wearablebackpacks.item;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.nyfaria.wearablebackpacks.WearableBackpacks;
 import com.nyfaria.wearablebackpacks.backpack.BackpackContainer;
 import com.nyfaria.wearablebackpacks.backpack.BackpackInventory;
 import com.nyfaria.wearablebackpacks.backpack.BackpackMaterial;
 import com.nyfaria.wearablebackpacks.block.entity.BackpackBlockEntity;
-import com.nyfaria.wearablebackpacks.cap.BackpackBEHolderAttacher;
 import com.nyfaria.wearablebackpacks.cap.BackpackHolderAttacher;
 import com.nyfaria.wearablebackpacks.client.renderer.SimpleItemRenderer;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
@@ -21,7 +21,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -34,13 +33,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -70,6 +71,7 @@ import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLeatherItem {
@@ -98,12 +100,12 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT)) {
             if(Minecraft.getInstance().player.getItemBySlot(EquipmentSlot.CHEST) == stack){
-                tooltip.add(new TranslatableComponent("message.wearablebackpacks.sneak_place"));
+                tooltip.add(Component.translatable("message.wearablebackpacks.sneak_place"));
             } else {
-                tooltip.add(new TranslatableComponent("message.wearablebackpacks.place"));
+                tooltip.add(Component.translatable("message.wearablebackpacks.place"));
             }
         } else {
-            tooltip.add(new TranslatableComponent("Hold " + "\u00A7e" + "SHIFT" + "\u00A77" + " for More Info"));
+            tooltip.add(Component.literal("Hold " + "\u00A7e" + "SHIFT" + "\u00A77" + " for More Info"));
         }
     }
 
@@ -134,7 +136,14 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
         return InteractionResultHolder.sidedSuccess(stack, worldIn.isClientSide);
 
     }
-
+    private static final UUID[] ARMOR_MODIFIER_UUID_PER_SLOT = new UUID[]{UUID.fromString("845DB27C-C624-495F-8C9F-6020A9A58B6B"), UUID.fromString("D8499B04-0E66-4726-AB29-64469D734E0D"), UUID.fromString("9F3D476D-C118-4544-8365-64846904B48E"), UUID.fromString("2AD3F246-FEE1-4E67-B886-69FD380BB150")};
+    @Override
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot pEquipmentSlot) {
+        ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
+        UUID uuid = ARMOR_MODIFIER_UUID_PER_SLOT[pEquipmentSlot.getIndex()];
+        builder.put(Attributes.ARMOR, new AttributeModifier(uuid, "Armor modifier", BackpackConfig.INSTANCE.backpackDefenseLevel.get(), AttributeModifier.Operation.ADDITION));
+        return pEquipmentSlot == EquipmentSlot.CHEST ? builder.build() : super.getDefaultAttributeModifiers(pEquipmentSlot);
+    }
 
     @Override
     public int getDefense() {
@@ -291,7 +300,7 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
     }
 
     public Block getBlock() {
-        return this.getBlockRaw() == null ? null : this.getBlockRaw().delegate.get();
+        return this.getBlockRaw() == null ? null : net.minecraftforge.registries.ForgeRegistries.BLOCKS.getDelegateOrThrow(this.getBlockRaw()).get();
     }
 
     private Block getBlockRaw() {

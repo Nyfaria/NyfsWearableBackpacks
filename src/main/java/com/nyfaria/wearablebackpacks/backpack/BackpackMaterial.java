@@ -12,7 +12,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 
 public enum BackpackMaterial implements ArmorMaterial {
-   LEATHER("leather", 5, new int[]{1, 2, BackpackConfig.INSTANCE.backpackDefenseLevel.get(), 1}, 15, SoundEvents.ARMOR_EQUIP_LEATHER, 0.0F, 0.0F, () -> {
+   LEATHER("leather", 5, new int[]{1, 2, 0, 1}, 15, SoundEvents.ARMOR_EQUIP_LEATHER, 0.0F, 0.0F, () -> {
       return Ingredient.of(Items.LEATHER);
    });
 
@@ -42,7 +42,7 @@ public enum BackpackMaterial implements ArmorMaterial {
    }
 
    public int getDefenseForSlot(EquipmentSlot pSlot) {
-      return this.slotProtections[pSlot.getIndex()];
+      return 0;
    }
 
    public int getEnchantmentValue() {
