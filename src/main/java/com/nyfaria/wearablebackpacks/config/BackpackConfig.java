@@ -16,8 +16,7 @@ public class BackpackConfig {
     }
 
 
-    public ForgeConfigSpec.BooleanValue inventoryToolTip;
-    public ForgeConfigSpec.BooleanValue bundleAdd;
+
     public ForgeConfigSpec.BooleanValue autoAddToBag;
     public ForgeConfigSpec.BooleanValue canEquipFromInventory;
     public ForgeConfigSpec.IntValue rows;
@@ -34,8 +33,6 @@ public class BackpackConfig {
     private BackpackConfig(ForgeConfigSpec.Builder builder) {
         this.canEquipFromInventory = builder.comment("Should you be able to equip from inventory?").define("canEquipFromInventory", false);
         this.autoAddToBag = builder.comment("Should items you pick up be automatically added to your backpack?").define("autoAddToBag", false);
-        this.bundleAdd = builder.comment("Can you add stuff to your backpack like you would a Bundle?").define("bundleAdd", false);
-        this.inventoryToolTip = builder.comment("Should the tooltip display the inventory?").define("inventoryToolTip", false);
         this.backpackDefenseLevel = builder.comment("How much armor does the backpack provide?").defineInRange("backpackDefenseLevel", 2, 1, 20);
         this.entityBackpackChance = builder.comment("How likely is it that a mob will drop a backpack?").defineInRange("entityBackpackChance", 10, 0, 100);
         this.backpackDurability = builder.comment("How much durability does the backpack have?").defineInRange("backpackDurability", 80, 1, 9999);
