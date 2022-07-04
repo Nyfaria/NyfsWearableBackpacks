@@ -9,6 +9,7 @@ import com.nyfaria.wearablebackpacks.backpack.BackpackContainer;
 import com.nyfaria.wearablebackpacks.util.Dimension;
 import com.nyfaria.wearablebackpacks.util.Rectangle;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -33,13 +34,14 @@ public class BackpackBEContainerScreen extends AbstractContainerScreen<BackpackB
     }
 
     private static void blitdQuad(Matrix4f matrices, int x0, int x1, int y0, int y1, int z, float u0, float u1, float v0, float v1) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         BufferBuilder bufferBuilder = Tesselator.getInstance().getBuilder();
         bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         bufferBuilder.vertex(matrices, (float) x0, (float) y1, (float) z).uv(u0, v1).endVertex();
         bufferBuilder.vertex(matrices, (float) x1, (float) y1, (float) z).uv(u1, v1).endVertex();
         bufferBuilder.vertex(matrices, (float) x1, (float) y0, (float) z).uv(u1, v0).endVertex();
         bufferBuilder.vertex(matrices, (float) x0, (float) y0, (float) z).uv(u0, v0).endVertex();
-        BufferUploader.draw(bufferBuilder.end());
+        BufferUploader.drawWithShader(bufferBuilder.end());
     }
 
     @Override
@@ -73,21 +75,21 @@ public class BackpackBEContainerScreen extends AbstractContainerScreen<BackpackB
         int yTextureOffset = 66;
 
         // 9 Patch Texture
-
-        // Four Corners
-        this.blit(matrices, x, y, 106 + xTextureOffset, 124 + yTextureOffset, 8, 8);
-        this.blit(matrices, x + width - 8, y, 248 + xTextureOffset, 124 + yTextureOffset, 8, 8);
-        this.blit(matrices, x, y + height - 8, 106 + xTextureOffset, 182 + yTextureOffset, 8, 8);
-        this.blit(matrices, x + width - 8, y + height - 8, 248 + xTextureOffset, 182 + yTextureOffset, 8, 8);
-
         Matrix4f matrix = matrices.last().pose();
+
+        // Center
+        blitdQuad(matrix, x + 8, x + width - 8, y + 8, y + height - 8, getBlitOffset(), (114 + xTextureOffset) / 256f, (248 + xTextureOffset) / 256f, (132 + yTextureOffset) / 256f, (182 + yTextureOffset) / 256f);
+
         // Sides
         blitdQuad(matrix, x + 8, x + width - 8, y, y + 8, getBlitOffset(), (114 + xTextureOffset) / 256f, (248 + xTextureOffset) / 256f, (124 + yTextureOffset) / 256f, (132 + yTextureOffset) / 256f);
         blitdQuad(matrix, x + 8, x + width - 8, y + height - 8, y + height, getBlitOffset(), (114 + xTextureOffset) / 256f, (248 + xTextureOffset) / 256f, (182 + yTextureOffset) / 256f, (190 + yTextureOffset) / 256f);
         blitdQuad(matrix, x, x + 8, y + 8, y + height - 8, getBlitOffset(), (106 + xTextureOffset) / 256f, (114 + xTextureOffset) / 256f, (132 + yTextureOffset) / 256f, (182 + yTextureOffset) / 256f);
         blitdQuad(matrix, x + width - 8, x + width, y + 8, y + height - 8, getBlitOffset(), (248 + xTextureOffset) / 256f, (256 + xTextureOffset) / 256f, (132 + yTextureOffset) / 256f, (182 + yTextureOffset) / 256f);
 
-        // Center
-        blitdQuad(matrix, x + 8, x + width - 8, y + 8, y + height - 8, getBlitOffset(), (114 + xTextureOffset) / 256f, (248 + xTextureOffset) / 256f, (132 + yTextureOffset) / 256f, (182 + yTextureOffset) / 256f);
+        // Four Corners
+        this.blit(matrices, x, y, 106 + xTextureOffset, 124 + yTextureOffset, 8, 8);
+        this.blit(matrices, x + width - 8, y, 248 + xTextureOffset, 124 + yTextureOffset, 8, 8);
+        this.blit(matrices, x, y + height - 8, 106 + xTextureOffset, 182 + yTextureOffset, 8, 8);
+        this.blit(matrices, x + width - 8, y + height - 8, 248 + xTextureOffset, 182 + yTextureOffset, 8, 8);
     }
 }

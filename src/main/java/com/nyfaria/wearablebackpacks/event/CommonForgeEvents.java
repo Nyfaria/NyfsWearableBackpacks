@@ -45,6 +45,7 @@ public class CommonForgeEvents {
 
     @SubscribeEvent
     public static void onClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        if(!event.getPlayer().getMainHandItem().isEmpty())return;
         if (event.getPlayer().isShiftKeyDown()) {
             if (event.getFace() == Direction.UP) {
                 if (event.getPlayer().getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get())) {
