@@ -38,9 +38,6 @@ public class BackpackContainer extends AbstractContainerMenu {
         this.pos = pos;
         this.ownerId = ownerId;
         this.addSlots(this.rows, this.columns, backpackInventory, player);
-
-        ((LivingEntity) player.player.level.getEntity(ownerId)).getItemBySlot(EquipmentSlot.CHEST).getOrCreateTag().putBoolean("accessed", true);
-
     }
 
     public Dimension getDimension() {

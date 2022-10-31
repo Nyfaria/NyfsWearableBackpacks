@@ -27,7 +27,6 @@ public class PacketOpenBackpack implements IPacket {
 
     @Override
     public void handle(NetworkEvent.Context context) {
-        context.setPacketHandled(true);
         if(BackpackConfig.INSTANCE.canOpenWhileEquipped.get()) {
             Player player = context.getSender();
             if (player != null) {
@@ -39,6 +38,7 @@ public class PacketOpenBackpack implements IPacket {
                 }
             }
         }
+        context.setPacketHandled(true);
     }
 
     @Override
