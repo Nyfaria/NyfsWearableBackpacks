@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "com.nyfaria.wearablebackpacks.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_8",
   "refmap": "${mod_id}.refmap.json",
   "mixins": [
     "SlotMixin"

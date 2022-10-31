@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class ModLangProvider extends LanguageProvider {
 
@@ -46,11 +47,7 @@ public class ModLangProvider extends LanguageProvider {
     protected void itemLang(Supplier<Item> entry) {
 
         List<String> words = new ArrayList<>();
-        Arrays.stream(entry.get().getRegistryName().getPath().split("_")).toList().forEach(e -> {
-
-                    words.add(checkReplace(e));
-
-                }
+        Arrays.stream(entry.get().getRegistryName().getPath().split("_")).collect(Collectors.toList()).forEach(e -> words.add(checkReplace(e))
         );
         if (!(entry.get() instanceof BlockItem)) {
             addItem(entry, String.join(" ", words).trim());
@@ -59,7 +56,7 @@ public class ModLangProvider extends LanguageProvider {
 
     protected void blockLang(Supplier<Block> entry) {
         List<String> words = new ArrayList<>();
-        Arrays.stream(entry.get().getRegistryName().getPath().split("_")).toList().forEach(e -> {
+        Arrays.stream(entry.get().getRegistryName().getPath().split("_")).collect(Collectors.toList()).forEach(e -> {
 
                     words.add(checkReplace(e));
 
@@ -72,7 +69,7 @@ public class ModLangProvider extends LanguageProvider {
 
     protected void entityLang(Supplier<EntityType<?>> entry) {
         List<String> words = new ArrayList<>();
-        Arrays.stream(entry.get().getRegistryName().getPath().split("_")).toList().forEach(e -> {
+        Arrays.stream(entry.get().getRegistryName().getPath().split("_")).collect(Collectors.toList()).forEach(e -> {
 
                     words.add(checkReplace(e));
 

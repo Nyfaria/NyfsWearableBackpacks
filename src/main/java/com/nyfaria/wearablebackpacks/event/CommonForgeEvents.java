@@ -43,7 +43,7 @@ public class CommonForgeEvents {
 
     @SubscribeEvent
     public static void onClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getPlayer().isShiftKeyDown()) {
+        if (event.getPlayer().isShiftKeyDown() && event.getPlayer().getMainHandItem().isEmpty()) {
             if (event.getFace() == Direction.UP) {
                 if (event.getPlayer().getItemBySlot(EquipmentSlotType.CHEST).getItem() == (ItemInit.BACKPACK.get())) {
                     ItemInit.BACKPACK.get().place(new BlockItemUseContext(event.getPlayer(), Hand.MAIN_HAND, event.getPlayer().getItemBySlot(EquipmentSlotType.CHEST), event.getHitVec()));
@@ -56,7 +56,8 @@ public class CommonForgeEvents {
     public static void onClickBlock(PlayerInteractEvent.EntityInteract event) {
         if (!BackpackConfig.INSTANCE.canOpenOthers.get()) return;
         if (event.getPlayer().level.isClientSide) return;
-        if (event.getTarget() instanceof PlayerEntity targetPlayer) {
+        if (event.getTarget() instanceof PlayerEntity) {
+            PlayerEntity targetPlayer = (PlayerEntity) event.getTarget();
             PlayerEntity player = event.getPlayer();
             if (canInteractWithEquippedBackpack(player, targetPlayer)) {
                 if (targetPlayer.getItemBySlot(EquipmentSlotType.CHEST).getItem() == (ItemInit.BACKPACK.get())) {
@@ -81,7 +82,8 @@ public class CommonForgeEvents {
     @SubscribeEvent
     public static void onEntityJoinWorld(EntityJoinWorldEvent event) {
         if (event.getWorld().isClientSide) return;
-        if (event.getEntity() instanceof MobEntity livingEntity) {
+        if (event.getEntity() instanceof MobEntity) {
+            MobEntity livingEntity = (MobEntity) event.getEntity();
             if (livingEntity.getType().is(TagInit.BACKPACKABLE)) {
                 if (event.getWorld().random.nextInt(100) < BackpackConfig.INSTANCE.entityBackpackChance.get()) {
                     ItemStack backpack = new ItemStack(ItemInit.BACKPACK.get());

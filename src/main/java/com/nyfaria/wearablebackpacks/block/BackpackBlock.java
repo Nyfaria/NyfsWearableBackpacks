@@ -95,13 +95,13 @@ public class BackpackBlock extends HorizontalBlock {
     @Override
     public VoxelShape getShape(BlockState pState, IBlockReader pLevel, BlockPos pPos, ISelectionContext pContext) {
         Direction direction = pState.getValue(FACING);
-        return switch (direction) {
-            case NORTH -> SHAPE_NORTH;
-            case EAST -> SHAPE_EAST;
-            case SOUTH -> SHAPE_SOUTH;
-            case WEST -> SHAPE_WEST;
-            default -> SHAPE_NORTH;
-        };
+        switch (direction) {
+            case NORTH: return SHAPE_NORTH;
+            case EAST: return SHAPE_EAST;
+            case SOUTH: return SHAPE_SOUTH;
+            case WEST: return SHAPE_WEST;
+            default: return SHAPE_NORTH;
+        }
     }
 
     public static VoxelShape makeShape(Direction direction) {
@@ -161,7 +161,8 @@ public class BackpackBlock extends HorizontalBlock {
 
     @Override
     public boolean removedByPlayer(BlockState state, World pLevel, BlockPos pPos, PlayerEntity pPlayer, boolean willHarvest, FluidState fluid) {
-            if (pLevel.getBlockEntity(pPos) instanceof BackpackBlockEntity blockEntity) {
+            if (pLevel.getBlockEntity(pPos) instanceof BackpackBlockEntity) {
+                BackpackBlockEntity  blockEntity = (BackpackBlockEntity) pLevel.getBlockEntity(pPos);
                 ItemStack itemstack = getColoredItemStack(blockEntity.getColor());
                 itemstack.setTag(blockEntity.getBackpackTag());
                 if (pPlayer.isShiftKeyDown()) {

@@ -38,8 +38,9 @@ public class BackpackContainer extends Container {
         this.pos = pos;
         this.ownerId = ownerId;
         this.addSlots(this.rows, this.columns, backpackInventory, player);
-
-        ((LivingEntity) player.player.level.getEntity(ownerId)).getItemBySlot(EquipmentSlotType.CHEST).getOrCreateTag().putBoolean("accessed", true);
+        if(ownerId!=0) {
+            ((LivingEntity) player.player.level.getEntity(ownerId)).getItemBySlot(EquipmentSlotType.CHEST).getOrCreateTag().putBoolean("accessed", true);
+        }
 
     }
 

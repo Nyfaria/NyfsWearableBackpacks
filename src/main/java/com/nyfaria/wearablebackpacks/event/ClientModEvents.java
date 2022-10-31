@@ -46,8 +46,8 @@ public class ClientModEvents {
     public static void onBlockColor(ColorHandlerEvent.Block event) {
         event.getBlockColors().register((state, level, pos, tintIndex) -> {
             TileEntity be = level.getBlockEntity(pos);
-            if (be instanceof BackpackBlockEntity bbe) {
-                return bbe.getColor();
+            if (be instanceof BackpackBlockEntity) {
+                return ((BackpackBlockEntity) be).getColor();
             }
             return 0;
         }, BlockInit.BACKPACK.get());
