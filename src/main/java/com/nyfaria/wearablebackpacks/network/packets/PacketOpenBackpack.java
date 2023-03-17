@@ -31,7 +31,7 @@ public class PacketOpenBackpack implements IPacket {
             if (player != null) {
                 ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
                 if (stack.is(ItemInit.BACKPACK.get())) {
-                    NetworkHooks.openGui((ServerPlayer) player, new BackpackItem.ContainerProvider(stack.getDisplayName(), BackpackItem.getInventory(stack), player, player), a -> {
+                    NetworkHooks.openScreen((ServerPlayer) player, new BackpackItem.ContainerProvider(stack.getDisplayName(), BackpackItem.getInventory(stack), player, player), a -> {
                         a.writeNbt(BackpackItem.getInventory(stack).serializeNBT());
                     });
                 }

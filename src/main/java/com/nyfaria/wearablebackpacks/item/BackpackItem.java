@@ -58,7 +58,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.IItemRenderProperties;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.network.NetworkHooks;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.lwjgl.glfw.GLFW;
@@ -67,6 +67,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.item.GeoArmorItem;
 import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -76,7 +77,7 @@ import java.util.function.Consumer;
 
 public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLeatherItem {
     private final Block block;
-    private final AnimationFactory animationFactory = new AnimationFactory(this);
+    private final AnimationFactory animationFactory = GeckoLibUtil.createFactory(this);
 
     public BackpackItem(Block pBlock, Properties pProperties) {
         super(BackpackMaterial.LEATHER, EquipmentSlot.CHEST, pProperties);
@@ -128,7 +129,7 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
         ItemStack stack = playerIn.getItemInHand(handIn);
         if (!playerIn.isShiftKeyDown() && BackpackConfig.INSTANCE.canOpenWithHand.get()) {
             if (!worldIn.isClientSide()) {
-                NetworkHooks.openGui((ServerPlayer) playerIn, new ContainerProvider(stack.getDisplayName(), getInventory(stack), playerIn, playerIn), a -> {
+                NetworkHooks.openScreen((ServerPlayer) playerIn, new ContainerProvider(stack.getDisplayName(), getInventory(stack), playerIn, playerIn), a -> {
                     a.writeNbt(getInventory(stack).serializeNBT());
                 });
             }
@@ -368,11 +369,13 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
         }
     }
 
+
+
     @Override
-    public void initializeClient(Consumer<IItemRenderProperties> consumer) {
-        consumer.accept(new IItemRenderProperties() {
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
             @Override
-            public HumanoidModel<?> getArmorModel(LivingEntity entityLiving, ItemStack itemStack,
+            public HumanoidModel<?> getHumanoidArmorModel(LivingEntity entityLiving, ItemStack itemStack,
                                                   EquipmentSlot armorSlot, HumanoidModel<?> _default) {
                 return (HumanoidModel<?>) GeoArmorRenderer.getRenderer(BackpackItem.this.getClass(), entityLiving).applyEntityStats(_default)
                         .applySlot(armorSlot).setCurrentItem(entityLiving, itemStack, armorSlot);
@@ -381,7 +384,7 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
             SimpleItemRenderer<BackpackItem> renderer = new SimpleItemRenderer<>();
 
             @Override
-            public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 return renderer;
             }
         });

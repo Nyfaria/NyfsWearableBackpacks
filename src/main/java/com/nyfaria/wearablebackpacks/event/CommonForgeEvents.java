@@ -9,7 +9,6 @@ import com.nyfaria.wearablebackpacks.init.BlockInit;
 import com.nyfaria.wearablebackpacks.init.ItemInit;
 import com.nyfaria.wearablebackpacks.init.TagInit;
 import com.nyfaria.wearablebackpacks.item.BackpackItem;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +30,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -45,11 +44,11 @@ public class CommonForgeEvents {
 
     @SubscribeEvent
     public static void onClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if(!event.getPlayer().getMainHandItem().isEmpty())return;
-        if (event.getPlayer().isShiftKeyDown()) {
+        if(!event.getEntity().getMainHandItem().isEmpty())return;
+        if (event.getEntity().isShiftKeyDown()) {
             if (event.getFace() == Direction.UP) {
-                if (event.getPlayer().getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get())) {
-                    ItemInit.BACKPACK.get().place(new BlockPlaceContext(event.getPlayer(), InteractionHand.MAIN_HAND, event.getPlayer().getItemBySlot(EquipmentSlot.CHEST), event.getHitVec()));
+                if (event.getEntity().getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get())) {
+                    ItemInit.BACKPACK.get().place(new BlockPlaceContext(event.getEntity(), InteractionHand.MAIN_HAND, event.getEntity().getItemBySlot(EquipmentSlot.CHEST), event.getHitVec()));
                 }
             }
         }
@@ -58,13 +57,13 @@ public class CommonForgeEvents {
     @SubscribeEvent
     public static void onClickBlock(PlayerInteractEvent.EntityInteract event) {
         if (!BackpackConfig.INSTANCE.canOpenOthers.get()) return;
-        if (event.getPlayer().level.isClientSide) return;
-        if (event.getTarget() instanceof Player targetPlayer) {
-            Player player = event.getPlayer();
-            if (canInteractWithEquippedBackpack(player, targetPlayer)) {
-                if (targetPlayer.getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get())) {
-                    ItemStack stack = targetPlayer.getItemBySlot(EquipmentSlot.CHEST);
-                    NetworkHooks.openGui((ServerPlayer) player, new BackpackItem.ContainerProvider(stack.getDisplayName(), BackpackItem.getInventory(stack), player, targetPlayer), a -> {
+        if (event.getEntity().level.isClientSide) return;
+        if (event.getTarget() instanceof Player targetEntity) {
+            Player player = event.getEntity();
+            if (canInteractWithEquippedBackpack(player, targetEntity)) {
+                if (targetEntity.getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get())) {
+                    ItemStack stack = targetEntity.getItemBySlot(EquipmentSlot.CHEST);
+                    NetworkHooks.openScreen((ServerPlayer) player, new BackpackItem.ContainerProvider(stack.getDisplayName(), BackpackItem.getInventory(stack), player, targetEntity), a -> {
                         a.writeNbt(BackpackItem.getInventory(stack).serializeNBT());
                     });
                 }
@@ -82,13 +81,13 @@ public class CommonForgeEvents {
     }
 
     @SubscribeEvent
-    public static void onEntityJoinWorld(EntityJoinWorldEvent event) {
-        if (event.getWorld().isClientSide) return;
+    public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide) return;
         if (event.getEntity() instanceof Mob livingEntity) {
             if (livingEntity.getType().is(TagInit.BACKPACKABLE)) {
-                if (event.getWorld().random.nextInt(100) < BackpackConfig.INSTANCE.entityBackpackChance.get()) {
+                if (event.getLevel().random.nextInt(100) < BackpackConfig.INSTANCE.entityBackpackChance.get()) {
                     ItemStack backpack = new ItemStack(ItemInit.BACKPACK.get());
-                    unpackLootTable(new ResourceLocation(WearableBackpacks.MODID, "backpack/" + ForgeRegistries.ENTITIES.getKey(livingEntity.getType()).getNamespace() + "/" + ForgeRegistries.ENTITIES.getKey(livingEntity.getType()).getPath()), livingEntity.level, livingEntity.blockPosition(), livingEntity.getRandom().nextLong(), backpack);
+                    unpackLootTable(new ResourceLocation(WearableBackpacks.MODID, "backpack/" + ForgeRegistries.ENTITY_TYPES.getKey(livingEntity.getType()).getNamespace() + "/" + ForgeRegistries.ENTITY_TYPES.getKey(livingEntity.getType()).getPath()), livingEntity.level, livingEntity.blockPosition(), livingEntity.getRandom().nextLong(), backpack);
                     livingEntity.setItemSlot(EquipmentSlot.CHEST, backpack);
                     livingEntity.setDropChance(EquipmentSlot.CHEST, 1.0f);
                 }
@@ -109,7 +108,7 @@ public class CommonForgeEvents {
     @SubscribeEvent
     public static void onItemPickUp(final EntityItemPickupEvent e) {
         ItemStack toPickup = e.getItem().getItem();
-        Player player = e.getPlayer();
+        Player player = e.getEntity();
         ItemStack backpackStack = player.getItemBySlot(EquipmentSlot.CHEST);
         if (!backpackStack.is(ItemInit.BACKPACK.get())) return;
         if (!BackpackConfig.INSTANCE.autoAddToBag.get()) return;
@@ -132,8 +131,8 @@ public class CommonForgeEvents {
 
         event.getDrops().stream().filter(item -> item.getItem().is(ItemInit.BACKPACK.get())).forEach(item -> {
             ItemStack stack = item.getItem();
-            BlockPos pos = event.getEntityLiving().blockPosition();
-            Level level = event.getEntityLiving().level;
+            BlockPos pos = event.getEntity().blockPosition();
+            Level level = event.getEntity().level;
             while(level.getBlockState(pos.below()).isAir()){
                 pos = pos.below();
             }

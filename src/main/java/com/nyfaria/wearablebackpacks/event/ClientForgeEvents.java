@@ -17,7 +17,7 @@ import org.lwjgl.glfw.GLFW;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ClientForgeEvents {
     @SubscribeEvent
-    public static void onKey(InputEvent.KeyInputEvent e) {
+    public static void onKey(InputEvent.Key e) {
         if (ClientModEvents.OPEN_BACKPACK != null && ClientModEvents.OPEN_BACKPACK.matches(e.getKey(), e.getScanCode()) && Minecraft.getInstance().level != null && (e.getAction() == GLFW.GLFW_PRESS && ClientModEvents.OPEN_BACKPACK.isConflictContextAndModifierActive()))
             NetworkHandler.INSTANCE.sendToServer(new PacketOpenBackpack());
     }

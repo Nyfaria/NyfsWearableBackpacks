@@ -73,7 +73,7 @@ public class ModLangProvider extends LanguageProvider {
 
     protected void entityLang(Supplier<EntityType<?>> entry) {
         List<String> words = new ArrayList<>();
-        Arrays.stream(ForgeRegistries.ENTITIES.getKey(entry.get()).getPath().split("_")).toList().forEach(e -> {
+        Arrays.stream(ForgeRegistries.ENTITY_TYPES.getKey(entry.get()).getPath().split("_")).toList().forEach(e -> {
 
                     words.add(checkReplace(e));
 

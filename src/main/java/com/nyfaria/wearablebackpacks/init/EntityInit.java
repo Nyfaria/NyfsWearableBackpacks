@@ -20,7 +20,7 @@ import static com.nyfaria.wearablebackpacks.WearableBackpacks.MODID;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = MODID)
 public class EntityInit {
-    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, MODID);
+    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MODID);
     private static final List<Pair<Supplier<EntityType<? extends LivingEntity>>, Supplier<AttributeSupplier.Builder>>> attributeSuppliers = new ArrayList<>();
 
     private static <T extends Entity> RegistryObject<EntityType<T>> registerEntity(String name, Supplier<EntityType.Builder<T>> supplier) {
