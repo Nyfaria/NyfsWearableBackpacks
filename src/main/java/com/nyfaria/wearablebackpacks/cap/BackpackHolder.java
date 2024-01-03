@@ -1,6 +1,5 @@
 package com.nyfaria.wearablebackpacks.cap;
 
-import com.google.common.collect.Lists;
 import com.nyfaria.wearablebackpacks.backpack.BackpackInventory;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import dev._100media.capabilitysyncer.core.ItemStackCapability;
@@ -10,19 +9,13 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
-import java.util.function.Consumer;
 
 public class BackpackHolder extends ItemStackCapability {
     private final BackpackInventory inventory;
@@ -71,6 +64,7 @@ public class BackpackHolder extends ItemStackCapability {
         }
 
     }
+
     private List<Integer> getAvailableSlots(BackpackInventory pInventory, RandomSource pRand) {
         ObjectArrayList<Integer> list = new ObjectArrayList();
 

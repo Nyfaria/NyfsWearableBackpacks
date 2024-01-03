@@ -2,6 +2,7 @@ package com.nyfaria.wearablebackpacks;
 
 import com.nyfaria.wearablebackpacks.cap.BackpackBEHolderAttacher;
 import com.nyfaria.wearablebackpacks.cap.BackpackHolderAttacher;
+import com.nyfaria.wearablebackpacks.cap.WornBackpackHolderAttacher;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import com.nyfaria.wearablebackpacks.datagen.ModBlockStateProvider;
 import com.nyfaria.wearablebackpacks.datagen.ModItemModelProvider;
@@ -46,6 +47,7 @@ public class WearableBackpacks {
         ContainerInit.CONTAINERS.register(bus);
         BackpackHolderAttacher.register();
         BackpackBEHolderAttacher.register();
+        WornBackpackHolderAttacher.register();
 
     }
 

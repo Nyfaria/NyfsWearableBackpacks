@@ -19,6 +19,6 @@ public class BlockInit {
 
     public static final RegistryObject<Block> BACKPACK = BLOCKS.register("backpack", () -> new BackpackBlock(BlockBehaviour.Properties.of(Material.DIRT, MaterialColor.COLOR_BROWN).strength(2,3)));
 
-    public static final RegistryObject<BlockEntityType<?>> BACKPACK_BE = BLOCK_ENTITIES.register("backpack", () -> BlockEntityType.Builder.of(BackpackBlockEntity::new, BACKPACK.get()).build(null));
+    public static final RegistryObject<BlockEntityType<BackpackBlockEntity>> BACKPACK_BE = BLOCK_ENTITIES.register("backpack", () -> BlockEntityType.Builder.of(BackpackBlockEntity::new, BACKPACK.get()).build(null));
 
 }

@@ -4,7 +4,6 @@ import com.nyfaria.wearablebackpacks.WearableBackpacks;
 import com.nyfaria.wearablebackpacks.backpack.BackpackBEContainer;
 import com.nyfaria.wearablebackpacks.backpack.BackpackContainer;
 import com.nyfaria.wearablebackpacks.backpack.BackpackInventory;
-import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.registries.DeferredRegister;

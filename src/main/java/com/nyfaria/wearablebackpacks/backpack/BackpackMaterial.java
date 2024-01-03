@@ -1,8 +1,5 @@
 package com.nyfaria.wearablebackpacks.backpack;
 
-import java.util.function.Supplier;
-
-import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.LazyLoadedValue;
@@ -10,6 +7,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+
+import java.util.function.Supplier;
 
 public enum BackpackMaterial implements ArmorMaterial {
    LEATHER("leather", 5, new int[]{1, 2, 0, 1}, 15, SoundEvents.ARMOR_EQUIP_LEATHER, 0.0F, 0.0F, () -> {

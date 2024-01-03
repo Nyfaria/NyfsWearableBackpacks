@@ -1,11 +1,7 @@
 package com.nyfaria.wearablebackpacks.block.entity;
 
 import com.nyfaria.wearablebackpacks.backpack.BackpackBEContainer;
-import com.nyfaria.wearablebackpacks.backpack.BackpackContainer;
-import com.nyfaria.wearablebackpacks.backpack.BackpackInventory;
-import com.nyfaria.wearablebackpacks.cap.BackpackBEHolderAttacher;
 import com.nyfaria.wearablebackpacks.init.BlockInit;
-import com.nyfaria.wearablebackpacks.item.BackpackItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -13,29 +9,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ChestMenu;
-import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
 
-public class BackpackBlockEntity extends BaseContainerBlockEntity implements IAnimatable {
-    private final AnimationFactory animationFactory = new AnimationFactory(this);
+public class BackpackBlockEntity extends BaseContainerBlockEntity /*implements IAnimatable*/ {
+//    private final AnimationFactory animationFactory = new AnimationFactory(this);
     private boolean accessed = false;
     private int color = 0;
 
@@ -50,19 +34,19 @@ public class BackpackBlockEntity extends BaseContainerBlockEntity implements IAn
         this.backpackTag = tag;
         updateBlock();
     }
-    @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController(this,"controller", 0, this::predicate));
-    }
+//    @Override
+//    public void registerControllers(AnimationData data) {
+//        data.addAnimationController(new AnimationController(this,"controller", 0, this::predicate));
+//    }
 
-    private <P extends IAnimatable> PlayState predicate(AnimationEvent<P> event) {
-        AnimationController controller = event.getController();
-        if(accessed) {
-            controller.setAnimation(new AnimationBuilder().addAnimation("open", true));
-            return PlayState.CONTINUE;
-        }
-        return  PlayState.STOP;
-    }
+//    private <P extends IAnimatable> PlayState predicate(AnimationEvent<P> event) {
+//        AnimationController controller = event.getController();
+//        if(accessed) {
+//            controller.setAnimation(new AnimationBuilder().addAnimation("open", true));
+//            return PlayState.CONTINUE;
+//        }
+//        return  PlayState.STOP;
+//    }
     public static NonNullList<ItemStack> getInventory(BackpackBlockEntity itemStack) {
         return itemStack.items;
     }
@@ -92,10 +76,10 @@ public class BackpackBlockEntity extends BaseContainerBlockEntity implements IAn
     }
 
 
-    @Override
-    public AnimationFactory getFactory() {
-        return animationFactory;
-    }
+//    @Override
+//    public AnimationFactory getFactory() {
+//        return animationFactory;
+//    }
 
     public void setAccessed(boolean accessed) {
         this.accessed = accessed;
@@ -181,7 +165,6 @@ public class BackpackBlockEntity extends BaseContainerBlockEntity implements IAn
 
     @Override
     public void clearContent() {
-
     }
     public void updateBlock() {
         BlockState blockState = getBlockState();

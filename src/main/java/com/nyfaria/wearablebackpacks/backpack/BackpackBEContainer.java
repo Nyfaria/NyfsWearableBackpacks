@@ -1,24 +1,19 @@
 package com.nyfaria.wearablebackpacks.backpack;
 
-import com.nyfaria.wearablebackpacks.block.entity.BackpackBlockEntity;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import com.nyfaria.wearablebackpacks.init.ContainerInit;
-import com.nyfaria.wearablebackpacks.init.ItemInit;
 import com.nyfaria.wearablebackpacks.item.BackpackItem;
 import com.nyfaria.wearablebackpacks.util.Dimension;
 import com.nyfaria.wearablebackpacks.util.Point;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class BackpackBEContainer extends AbstractContainerMenu {
 

@@ -3,7 +3,6 @@ package com.nyfaria.wearablebackpacks.datagen;
 import com.google.common.base.Preconditions;
 import com.nyfaria.wearablebackpacks.WearableBackpacks;
 import com.nyfaria.wearablebackpacks.init.BlockInit;
-import com.nyfaria.wearablebackpacks.init.ItemInit;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;

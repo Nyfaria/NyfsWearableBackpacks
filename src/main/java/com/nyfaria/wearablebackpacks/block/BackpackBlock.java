@@ -2,14 +2,23 @@ package com.nyfaria.wearablebackpacks.block;
 
 import com.nyfaria.wearablebackpacks.block.entity.BackpackBlockEntity;
 import com.nyfaria.wearablebackpacks.cap.BackpackHolderAttacher;
+import com.nyfaria.wearablebackpacks.cap.WornBackpackHolder;
+import com.nyfaria.wearablebackpacks.cap.WornBackpackHolderAttacher;
+import com.nyfaria.wearablebackpacks.config.BackpackConfig;
+import com.nyfaria.wearablebackpacks.event.CommonForgeEvents;
 import com.nyfaria.wearablebackpacks.init.ItemInit;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.*;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeableLeatherItem;
@@ -36,7 +45,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
-import java.util.UUID;
 
 public class BackpackBlock extends HorizontalDirectionalBlock implements EntityBlock {
     private static final VoxelShape SHAPE_NORTH = makeShape(Direction.NORTH);
@@ -50,7 +58,17 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
 
     @Override
     public RenderShape getRenderShape(BlockState pState) {
-        return RenderShape.ENTITYBLOCK_ANIMATED;
+        return RenderShape.MODEL;
+    }
+
+    @Override
+    public void setPlacedBy(Level pLevel, BlockPos pPos, BlockState pState, @org.jetbrains.annotations.Nullable LivingEntity pPlacer, ItemStack pStack) {
+        BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
+        if(blockEntity instanceof BackpackBlockEntity bbe){
+            bbe.setColor(((DyeableLeatherItem)pStack.getItem()).getColor(pStack));
+            bbe.updateBlock();
+        }
+
     }
 
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
@@ -167,9 +185,13 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
                     CompoundTag tag = new CompoundTag();
                     ContainerHelper.saveAllItems(tag, BackpackBlockEntity.getInventory(blockEntity));
                     BackpackHolderAttacher.getBackpackHolderUnwrap(itemstack).deserializeNBT(tag, true);
-                    if (pPlayer.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
+                    if (CommonForgeEvents.getBackPackStack(pPlayer).isEmpty()) {
                         if (!pLevel.isClientSide) {
-                            pPlayer.setItemSlot(EquipmentSlot.CHEST, itemstack);
+                            if(BackpackConfig.INSTANCE.useChestSlot.get()) {
+                                pPlayer.setItemSlot(EquipmentSlot.CHEST, itemstack);
+                            } else {
+                                WornBackpackHolderAttacher.getHolderUnwrap(pPlayer).setBackpack(itemstack);
+                            }
                         }
                     } else {
                         if (pPlayer.getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get()) && !pLevel.isClientSide) {

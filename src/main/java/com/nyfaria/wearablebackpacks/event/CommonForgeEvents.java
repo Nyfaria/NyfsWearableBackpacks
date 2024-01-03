@@ -4,6 +4,7 @@ package com.nyfaria.wearablebackpacks.event;
 import com.nyfaria.wearablebackpacks.WearableBackpacks;
 import com.nyfaria.wearablebackpacks.backpack.BackpackInventory;
 import com.nyfaria.wearablebackpacks.cap.BackpackHolderAttacher;
+import com.nyfaria.wearablebackpacks.cap.WornBackpackHolderAttacher;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import com.nyfaria.wearablebackpacks.init.BlockInit;
 import com.nyfaria.wearablebackpacks.init.ItemInit;
@@ -31,6 +32,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -47,8 +49,11 @@ public class CommonForgeEvents {
         if(!event.getEntity().getMainHandItem().isEmpty())return;
         if (event.getEntity().isShiftKeyDown()) {
             if (event.getFace() == Direction.UP) {
-                if (event.getEntity().getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get())) {
-                    ItemInit.BACKPACK.get().place(new BlockPlaceContext(event.getEntity(), InteractionHand.MAIN_HAND, event.getEntity().getItemBySlot(EquipmentSlot.CHEST), event.getHitVec()));
+                if (getBackPackStack(event.getEntity()).is(ItemInit.BACKPACK.get())) {
+                    ItemInit.BACKPACK.get().place(new BlockPlaceContext(event.getEntity(), InteractionHand.MAIN_HAND, getBackPackStack(event.getEntity()), event.getHitVec()));
+                    if(!BackpackConfig.INSTANCE.useChestSlot.get()){
+                        WornBackpackHolderAttacher.getHolderUnwrap(event.getEntity()).setBackpack(ItemStack.EMPTY);
+                    }
                 }
             }
         }
@@ -61,13 +66,27 @@ public class CommonForgeEvents {
         if (event.getTarget() instanceof Player targetEntity) {
             Player player = event.getEntity();
             if (canInteractWithEquippedBackpack(player, targetEntity)) {
-                if (targetEntity.getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get())) {
-                    ItemStack stack = targetEntity.getItemBySlot(EquipmentSlot.CHEST);
+                if (hasBackPackEquipped(targetEntity)) {
+                    ItemStack stack =getBackPackStack(targetEntity);
                     NetworkHooks.openScreen((ServerPlayer) player, new BackpackItem.ContainerProvider(stack.getDisplayName(), BackpackItem.getInventory(stack), player, targetEntity), a -> {
                         a.writeNbt(BackpackItem.getInventory(stack).serializeNBT());
                     });
                 }
             }
+        }
+    }
+    public static boolean hasBackPackEquipped(Player player) {
+        if(BackpackConfig.INSTANCE.useChestSlot.get()) {
+            return player.getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get());
+        } else {
+            return WornBackpackHolderAttacher.getHolderUnwrap(player).getBackpack().is(ItemInit.BACKPACK.get());
+        }
+    }
+    public static ItemStack getBackPackStack(LivingEntity player){
+        if(BackpackConfig.INSTANCE.useChestSlot.get()) {
+            return player.getItemBySlot(EquipmentSlot.CHEST);
+        } else {
+            return WornBackpackHolderAttacher.getHolderUnwrap(player).getBackpack();
         }
     }
 
@@ -163,5 +182,9 @@ public class CommonForgeEvents {
         Vec3 end = new Vec3(livingEntity.getX() + look.x * (double) range, livingEntity.getY() + (double) livingEntity.getEyeHeight() + look.y * (double) range, livingEntity.getZ() + look.z * (double) range);
         ClipContext context = new ClipContext(start, end, ClipContext.Block.COLLIDER, rayTraceFluid, livingEntity);
         return level.clip(context);
+    }
+
+    public static void onLivingDamage(LivingDamageEvent event){
+        event.getSource().getMsgId().equals("sonic_boom");
     }
 }

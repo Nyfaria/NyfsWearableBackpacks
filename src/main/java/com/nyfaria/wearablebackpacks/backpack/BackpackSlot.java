@@ -2,10 +2,8 @@ package com.nyfaria.wearablebackpacks.backpack;
 
 import com.nyfaria.wearablebackpacks.init.TagInit;
 import net.minecraft.world.Container;
-import net.minecraft.world.inventory.AbstractFurnaceMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 public class BackpackSlot extends Slot {
 

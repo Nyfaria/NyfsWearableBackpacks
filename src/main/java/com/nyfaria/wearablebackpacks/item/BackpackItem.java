@@ -8,14 +8,13 @@ import com.nyfaria.wearablebackpacks.backpack.BackpackInventory;
 import com.nyfaria.wearablebackpacks.backpack.BackpackMaterial;
 import com.nyfaria.wearablebackpacks.block.entity.BackpackBlockEntity;
 import com.nyfaria.wearablebackpacks.cap.BackpackHolderAttacher;
-import com.nyfaria.wearablebackpacks.client.renderer.SimpleItemRenderer;
+import com.nyfaria.wearablebackpacks.client.model.CustomModel;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import com.nyfaria.wearablebackpacks.init.TagInit;
 import com.nyfaria.wearablebackpacks.tooltip.BackpackTooltip;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -42,6 +41,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -62,12 +62,6 @@ import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.network.NetworkHooks;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.lwjgl.glfw.GLFW;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.item.GeoArmorItem;
-import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
-import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -75,9 +69,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLeatherItem {
+public class BackpackItem extends ArmorItem implements DyeableLeatherItem {
     private final Block block;
-    private final AnimationFactory animationFactory = GeckoLibUtil.createFactory(this);
 
     public BackpackItem(Block pBlock, Properties pProperties) {
         super(BackpackMaterial.LEATHER, EquipmentSlot.CHEST, pProperties);
@@ -350,6 +343,7 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
                 ((BackpackBlockEntity) blockentity).setColor(((DyeableLeatherItem) pStack.getItem()).getColor(pStack));
                 ((BackpackBlockEntity) blockentity).setItems((BackpackHolderAttacher.getBackpackHolderUnwrap(pStack).getInventory().getStacks()));
                 ((BackpackBlockEntity) blockentity).setBackpackTag(pStack.getTag());
+                ((BackpackBlockEntity) blockentity).updateBlock();
                 if (compoundtag != null) {
                     if (!pLevel.isClientSide && blockentity.onlyOpCanSetNbt() && (pPlayer == null || !pPlayer.canUseGameMasterBlocks())) {
                         return false;
@@ -377,23 +371,12 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
             @Override
             public HumanoidModel<?> getHumanoidArmorModel(LivingEntity entityLiving, ItemStack itemStack,
                                                   EquipmentSlot armorSlot, HumanoidModel<?> _default) {
-                return (HumanoidModel<?>) GeoArmorRenderer.getRenderer(BackpackItem.this.getClass(), entityLiving).applyEntityStats(_default)
-                        .applySlot(armorSlot).setCurrentItem(entityLiving, itemStack, armorSlot);
+                return new CustomModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(CustomModel.LAYER_LOCATION));
             }
 
-            SimpleItemRenderer<BackpackItem> renderer = new SimpleItemRenderer<>();
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                return renderer;
-            }
         });
     }
 
-    @Override
-    public void registerControllers(AnimationData data) {
-
-    }
 
     @Override
     public boolean canEquip(ItemStack stack, EquipmentSlot armorType, Entity entity) {
@@ -406,10 +389,6 @@ public class BackpackItem extends GeoArmorItem implements IAnimatable, DyeableLe
         return super.createEntity(level, location, stack);
     }
 
-    @Override
-    public AnimationFactory getFactory() {
-        return animationFactory;
-    }
 
     public static class ContainerProvider implements MenuProvider {
         private final Component displayName;

@@ -1,5 +1,6 @@
 package com.nyfaria.wearablebackpacks.datagen;
 
+import com.nyfaria.wearablebackpacks.init.BlockInit;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.BlockModelBuilder;
@@ -30,7 +31,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
 //
 //        ).map(Supplier::get)
 //                .forEach(this::simpleBlock);
-
+        horizontalBlock(BlockInit.BACKPACK.get(),models().getExistingFile(modLoc("block/backpack")));
     }
 
     protected void simpleCubeBottomTopBlockState(Block block) {

@@ -1,6 +1,7 @@
 package com.nyfaria.wearablebackpacks.network.packets;
 
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
+import com.nyfaria.wearablebackpacks.event.CommonForgeEvents;
 import com.nyfaria.wearablebackpacks.init.ItemInit;
 import com.nyfaria.wearablebackpacks.item.BackpackItem;
 import dev._100media.capabilitysyncer.network.IPacket;
@@ -29,7 +30,7 @@ public class PacketOpenBackpack implements IPacket {
         if(BackpackConfig.INSTANCE.canOpenWhileEquipped.get()) {
             Player player = context.getSender();
             if (player != null) {
-                ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
+                ItemStack stack = CommonForgeEvents.getBackPackStack(player);
                 if (stack.is(ItemInit.BACKPACK.get())) {
                     NetworkHooks.openScreen((ServerPlayer) player, new BackpackItem.ContainerProvider(stack.getDisplayName(), BackpackItem.getInventory(stack), player, player), a -> {
                         a.writeNbt(BackpackItem.getInventory(stack).serializeNBT());

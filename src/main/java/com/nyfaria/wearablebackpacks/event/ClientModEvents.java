@@ -3,10 +3,11 @@ package com.nyfaria.wearablebackpacks.event;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.nyfaria.wearablebackpacks.WearableBackpacks;
 import com.nyfaria.wearablebackpacks.block.entity.BackpackBlockEntity;
-import com.nyfaria.wearablebackpacks.client.renderer.SimpleArmorRenderer;
-import com.nyfaria.wearablebackpacks.client.renderer.SimpleBlockEntityRenderer;
+import com.nyfaria.wearablebackpacks.client.model.CustomModel;
+import com.nyfaria.wearablebackpacks.client.renderer.BackPackRenderLayer;
 import com.nyfaria.wearablebackpacks.init.BlockInit;
 import com.nyfaria.wearablebackpacks.init.ContainerInit;
+import com.nyfaria.wearablebackpacks.init.ItemInit;
 import com.nyfaria.wearablebackpacks.item.BackpackItem;
 import com.nyfaria.wearablebackpacks.screens.BackpackBEContainerScreen;
 import com.nyfaria.wearablebackpacks.screens.BackpackContainerScreen;
@@ -26,12 +27,11 @@ import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import software.bernie.geckolib3.renderers.geo.GeoArmorRenderer;
 
 @Mod.EventBusSubscriber(modid = WearableBackpacks.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ClientModEvents {
 
-    public static KeyMapping OPEN_BACKPACK;
+    public static KeyMapping OPEN_BACKPACK = new KeyMapping("keys.wearablebackpacks.open_backpack", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_B, "keys.category.wearablebackpacks");
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
@@ -43,11 +43,20 @@ public class ClientModEvents {
 
     @SubscribeEvent
     public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event){
-        GeoArmorRenderer.registerArmorRenderer(BackpackItem.class, SimpleArmorRenderer::new);
+//        GeoArmorRenderer.registerArmorRenderer(BackpackItem.class, SimpleArmorRenderer::new);
+    }
+    @SubscribeEvent
+    public static void onRegisterRenderers(EntityRenderersEvent.AddLayers event){
+        event.getSkins().forEach(
+                skin->event.getSkin(skin).addLayer(new BackPackRenderLayer(event.getSkin(skin)))
+        );
+    }
+    @SubscribeEvent
+    public static void onRegisterRenderers(EntityRenderersEvent.RegisterLayerDefinitions event){
+        event.registerLayerDefinition(CustomModel.LAYER_LOCATION, CustomModel::createBodyLayer);
     }
     @SubscribeEvent
     public static void onKeyBindRegistry(RegisterKeyMappingsEvent event) {
-        OPEN_BACKPACK = new KeyMapping("keys.wearablebackpacks.open_backpack", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_B, "keys.category.wearablebackpacks");
         event.register(OPEN_BACKPACK);
     }
 
@@ -59,9 +68,18 @@ public class ClientModEvents {
 
     @SubscribeEvent
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(BlockInit.BACKPACK_BE.get(), SimpleBlockEntityRenderer::new);
+//        event.registerBlockEntityRenderer(BlockInit.BACKPACK_BE.get(), SimpleBlockEntityRenderer::new);
     }
 
+    @SubscribeEvent
+    public static void onBlockColor(RegisterColorHandlersEvent.Item event) {
+        event.getItemColors().register((stack, tintIndex) -> {
+            if (stack.getItem() instanceof BackpackItem) {
+                return ((BackpackItem) stack.getItem()).getColor(stack);
+            }
+            return 0;
+        }, ItemInit.BACKPACK.get());
+    }
     @SubscribeEvent
     public static void onBlockColor(RegisterColorHandlersEvent.Block event) {
         event.getBlockColors().register((state, level, pos, tintIndex) -> {

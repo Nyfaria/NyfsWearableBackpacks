@@ -29,6 +29,9 @@ public class BackpackConfig {
     public ForgeConfigSpec.IntValue backpackDurability;
     public ForgeConfigSpec.BooleanValue canOpenWithHand;
     public ForgeConfigSpec.BooleanValue canOpenOthers;
+    public ForgeConfigSpec.BooleanValue useChestSlot;
+
+
 
 
     private BackpackConfig(ForgeConfigSpec.Builder builder) {
@@ -45,6 +48,7 @@ public class BackpackConfig {
         this.canOpenOthers = builder.comment("Can you open other people's backpacks?").define("canOpenOthers", false);
         this.rows = builder.comment("How many rows does your backpack have?").defineInRange("rows", 4, 1, 13);
         this.columns = builder.comment("How many columns does your backpack have?").defineInRange("columns", 9, 1, 20);
+        this.useChestSlot = builder.comment("Should the backpack be equipped in the armor slot?").define("useChestSlot", true);
     }
 
 }
