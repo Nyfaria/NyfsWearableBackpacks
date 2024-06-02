@@ -4,6 +4,7 @@ package com.nyfaria.wearablebackpacks.event;
 import com.nyfaria.wearablebackpacks.WearableBackpacks;
 import com.nyfaria.wearablebackpacks.backpack.BackpackInventory;
 import com.nyfaria.wearablebackpacks.cap.BackpackHolderAttacher;
+import com.nyfaria.wearablebackpacks.cap.WornBackpackHolder;
 import com.nyfaria.wearablebackpacks.cap.WornBackpackHolderAttacher;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import com.nyfaria.wearablebackpacks.init.BlockInit;
@@ -46,7 +47,7 @@ public class CommonForgeEvents {
 
     @SubscribeEvent
     public static void onClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if(!event.getEntity().getMainHandItem().isEmpty())return;
+//        if(event.getEntity().getMainHandItem().isEmpty())return;
         if (event.getEntity().isShiftKeyDown()) {
             if (event.getFace() == Direction.UP) {
                 if (getBackPackStack(event.getEntity()).is(ItemInit.BACKPACK.get())) {
@@ -83,11 +84,12 @@ public class CommonForgeEvents {
         }
     }
     public static ItemStack getBackPackStack(LivingEntity player){
-        if(BackpackConfig.INSTANCE.useChestSlot.get()) {
+        if(BackpackConfig.INSTANCE.useChestSlot.get() && player.getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get())) {
             return player.getItemBySlot(EquipmentSlot.CHEST);
-        } else {
+        } else if(!BackpackConfig.INSTANCE.useChestSlot.get()) {
             return WornBackpackHolderAttacher.getHolderUnwrap(player).getBackpack();
         }
+        return ItemStack.EMPTY;
     }
 
     public static boolean canInteractWithEquippedBackpack(Player player, Player carrier) {
@@ -147,23 +149,39 @@ public class CommonForgeEvents {
 
     @SubscribeEvent
     public static void onLivingDrops(LivingDropsEvent event) {
-
-        event.getDrops().stream().filter(item -> item.getItem().is(ItemInit.BACKPACK.get())).forEach(item -> {
-            ItemStack stack = item.getItem();
-            BlockPos pos = event.getEntity().blockPosition();
-            Level level = event.getEntity().level;
-            while(level.getBlockState(pos.below()).isAir()){
-                pos = pos.below();
-            }
-            BlockState backpack = BlockInit.BACKPACK.get().defaultBlockState();
-            level.setBlockAndUpdate(pos, backpack);
-            BlockState blockstate1 = level.getBlockState(pos);
-            if (blockstate1.is(backpack.getBlock())) {
-                BackpackItem.updateCustomBlockEntityTag(level, null, pos, stack);
+        if(BackpackConfig.INSTANCE.useChestSlot.get()) {
+            event.getDrops().stream().filter(item -> item.getItem().is(ItemInit.BACKPACK.get())).forEach(item -> {
+                ItemStack stack = item.getItem();
+                BlockPos pos = event.getEntity().blockPosition();
+                Level level = event.getEntity().level;
+                while (level.getBlockState(pos.below()).isAir()) {
+                    pos = pos.below();
+                }
+                BlockState backpack = BlockInit.BACKPACK.get().defaultBlockState();
+                level.setBlockAndUpdate(pos, backpack);
+                BlockState blockstate1 = level.getBlockState(pos);
+                if (blockstate1.is(backpack.getBlock())) {
+                    BackpackItem.updateCustomBlockEntityTag(level, null, pos, stack);
 //                blockstate1.getBlock().setPlacedBy(level, blockpos, blockstate1, player, itemstack);
+                }
+                item.getItem().shrink(1);
+            });
+        } else {
+            ItemStack stack = getBackPackStack(event.getEntity());
+            if(stack.is(ItemInit.BACKPACK.get())) {
+                BlockPos pos = event.getEntity().blockPosition();
+                Level level = event.getEntity().level;
+                while (level.getBlockState(pos.below()).isAir()) {
+                    pos = pos.below();
+                }
+                BlockState backpack = BlockInit.BACKPACK.get().defaultBlockState();
+                level.setBlockAndUpdate(pos, backpack);
+                BlockState blockstate1 = level.getBlockState(pos);
+                if (blockstate1.is(backpack.getBlock())) {
+                    BackpackItem.updateCustomBlockEntityTag(level, null, pos, stack);
+                }
             }
-            item.getItem().shrink(1);
-        });
+        }
 
 //        ItemStack stack = player.getItemBySlot(EquipmentSlot.CHEST);
 

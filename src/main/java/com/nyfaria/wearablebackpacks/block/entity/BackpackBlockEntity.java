@@ -51,6 +51,11 @@ public class BackpackBlockEntity extends BaseContainerBlockEntity /*implements I
         return itemStack.items;
     }
 
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        super.handleUpdateTag(tag);
+    }
+
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pInventory, Player pPlayer) {
