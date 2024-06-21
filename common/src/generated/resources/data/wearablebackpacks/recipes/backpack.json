@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": {
+      "tag": "forge:ingots/gold"
+    },
+    "L": {
+      "item": "minecraft:leather"
+    },
+    "W": {
+      "tag": "minecraft:wool"
+    }
+  },
+  "pattern": [
+    "LGL",
+    "LWL",
+    "LLL"
+  ],
+  "result": {
+    "item": "wearablebackpacks:backpack"
+  },
+  "show_notification": true
+}
