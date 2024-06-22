@@ -5,10 +5,14 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "${mod_id}.refmap.json",
   "mixins": [
+    "PersistenEntitySectionManagerMixin",
+    "PlayerMixin",
+    "SlotMixin"
   ],
   "client": [
+    "BackpackItemMixin",
     "ExampleMixin",
-    "BackpackItemMixin"
+    "ArmorRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -5,8 +5,11 @@ import com.nyfaria.wearablebackpacks.backpack.BackpackHolder;
 import com.nyfaria.wearablebackpacks.backpack.BackpackMenu;
 import com.nyfaria.wearablebackpacks.cap.WornBackpackHolderAttacher;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
+import com.nyfaria.wearablebackpacks.network.NetworkHandler;
+import com.nyfaria.wearablebackpacks.network.PacketUpdateBE;
 import com.nyfaria.wearablebackpacks.platform.services.IPlatformHelper;
 import io.netty.buffer.Unpooled;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -17,6 +20,7 @@ import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.network.PacketDistributor;
 
 public class ForgePlatformHelper implements IPlatformHelper {
 
@@ -62,6 +66,10 @@ public class ForgePlatformHelper implements IPlatformHelper {
         });
     }
 
+    @Override
+    public void updateBlockEntity(Player player, BlockPos pos, int color) {
+        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(()-> (ServerPlayer) player), new PacketUpdateBE(pos, color));
+    }
 
 
 }

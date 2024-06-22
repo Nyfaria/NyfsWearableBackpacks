@@ -11,7 +11,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -19,7 +18,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
@@ -83,7 +81,7 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
 
             MenuProvider menuprovider = this.getMenuProvider(pState, pLevel, pPos);
             if (menuprovider != null) {
-                Services.PLATFORM.openBPMenu((ServerPlayer) pPlayer,menuprovider);
+                Services.PLATFORM.openBPMenu((ServerPlayer) pPlayer, menuprovider);
             }
         }
         return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
@@ -198,7 +196,13 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
                     } else if (!pLevel.isClientSide) {
                         pPlayer.displayClientMessage(Component.translatable("message.wearablebackpacks.chestplate"), true);
                     }
-                    pLevel.setBlockAndUpdate(pPos, pState);
+                    pLevel.setBlock(pPos, pState, 11);
+                    BackpackBlockEntity blockEntity1 = (BackpackBlockEntity) pLevel.getBlockEntity(pPos);
+                    blockEntity1.setColor(blockEntity.getColor());
+                    blockEntity1.setBackpackTag(blockEntity.getBackpackTag());
+                    blockEntity1.setItems(BackpackBlockEntity.getInventory(blockEntity));
+                    if (!pLevel.isClientSide)
+                        Services.PLATFORM.updateBlockEntity(pPlayer, pPos, blockEntity.getColor());
                 }
             } else {
                 Containers.dropContents(pLevel, pPos, blockEntity);

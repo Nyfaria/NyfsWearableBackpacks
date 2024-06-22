@@ -1,7 +1,7 @@
 {
   "block.wearablebackpacks.backpack": "Backpack",
   "item.wearablebackpacks.backpack": "Backpack",
-  "itemGroup.wearablebackpacks": "Multi Loader Template",
+  "itemGroup.wearablebackpacks.tab": "Nyf's Wearable Backpacks",
   "keys.category.wearablebackpacks": "Wearable Backpacks",
   "keys.wearablebackpacks.open_backpack": "Open Backpack",
   "message.wearablebackpacks.chestplate": "You can't equip a backpack while wearing a chestplate.",

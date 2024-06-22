@@ -32,6 +32,6 @@ public class WornBackpackHolderAttacher extends CapabilityAttacher {
 
     public static void register() {
         CapabilityAttacher.registerCapability(CAPABILITY_CLASS);
-        CapabilityAttacher.registerEntityAttacher(LivingEntity.class,WornBackpackHolderAttacher::attach, WornBackpackHolderAttacher::getHolder);
+        CapabilityAttacher.registerEntityAttacher(LivingEntity.class,WornBackpackHolderAttacher::attach, WornBackpackHolderAttacher::getHolder, true);
     }
 }

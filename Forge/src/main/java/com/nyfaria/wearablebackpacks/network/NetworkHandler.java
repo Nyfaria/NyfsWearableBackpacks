@@ -23,6 +23,7 @@ public class NetworkHandler {
 
     public static void register() {
         List<BiConsumer<SimpleChannel, Integer>> packets = ImmutableList.<BiConsumer<SimpleChannel, Integer>>builder()
+                .add(PacketUpdateBE::register)
                 .add(PacketOpenBackpack::register)
                 .add(SimpleEntityCapabilityStatusPacket::register)
                 .build();

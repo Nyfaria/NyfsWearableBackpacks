@@ -3,6 +3,8 @@ package com.nyfaria.wearablebackpacks.platform.services;
 import com.nyfaria.wearablebackpacks.backpack.BackpackBEMenu;
 import com.nyfaria.wearablebackpacks.backpack.BackpackHolder;
 import com.nyfaria.wearablebackpacks.backpack.BackpackMenu;
+import com.nyfaria.wearablebackpacks.block.entity.BackpackBlockEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
@@ -46,4 +48,6 @@ public interface IPlatformHelper {
     MenuType<BackpackMenu> registerBPMenu();
     MenuType<BackpackBEMenu> registerBPBEMenu();
     void openBPMenu(ServerPlayer player, MenuProvider supplier);
+
+    void updateBlockEntity(Player player, BlockPos pos, int color);
 }

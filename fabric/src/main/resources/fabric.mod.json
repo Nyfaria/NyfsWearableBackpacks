@@ -16,6 +16,9 @@
     ],
     "client": [
       "com.nyfaria.wearablebackpacks.NyfsWearableBackpacksClient"
+    ],
+    "cardinal-components": [
+      "com.nyfaria.wearablebackpacks.cap.BackpackHolderAttacher"
     ]
   },
   "mixins": [
@@ -29,6 +32,11 @@
   },
   "suggests": {
     "another-mod": "*"
+  },
+  "custom": {
+    "cardinal-components": [
+      "wearablebackpacks:backpack"
+    ]
   },
   "accessWidener" : "accesstransformers.accesswidener"
 }

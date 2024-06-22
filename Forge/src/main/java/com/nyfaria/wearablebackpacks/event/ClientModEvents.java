@@ -14,9 +14,12 @@ import com.nyfaria.wearablebackpacks.tooltip.ClientBackpackTooltip;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
@@ -24,6 +27,7 @@ import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientModEvents {
@@ -33,13 +37,13 @@ public class ClientModEvents {
         event.getSkins().forEach(
                 skin->event.getSkin(skin).addLayer(new BackPackRenderLayer(event.getSkin(skin)))
         );
-        BuiltInRegistries.ENTITY_TYPE.forEach((type) -> {
-            if(LivingEntity.class.isAssignableFrom(type.getBaseClass())) {
-                LivingEntityRenderer renderer =
-                event.getRenderer((EntityType<? extends LivingEntity>) type);
-                renderer.addLayer(new BackPackRenderLayer<>(renderer));
-            }
-        });
+        CommonClientClass.backpackHavers.forEach(
+                entityType -> {
+                    if(entityType != EntityType.PLAYER) {
+                        event.getRenderer(entityType).addLayer(new BackPackRenderLayer(event.getRenderer(entityType)));
+                    }
+                });
+
     }
     @SubscribeEvent
     public static void entityRenderers(EntityRenderersEvent.RegisterLayerDefinitions event) {

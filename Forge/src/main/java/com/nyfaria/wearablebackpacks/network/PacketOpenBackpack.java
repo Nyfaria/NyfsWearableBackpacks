@@ -1,5 +1,6 @@
 package com.nyfaria.wearablebackpacks.network;
 
+import com.nyfaria.wearablebackpacks.CommonClass;
 import com.nyfaria.wearablebackpacks.backpack.BackpackHolder;
 import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import com.nyfaria.wearablebackpacks.init.ItemInit;
@@ -24,15 +25,7 @@ public class PacketOpenBackpack implements IPacket {
     @Override
     public void handle(NetworkEvent.Context context) {
         context.setPacketHandled(true);
-        if(BackpackConfig.INSTANCE.canOpenWhileEquipped.get()) {
-            Player player = context.getSender();
-            if (player != null) {
-                ItemStack stack = BackpackHolder.getBackpackStack(player);
-                if (stack.is(ItemInit.BACKPACK.get())) {
-                    player.openMenu(new BackpackItem.ContainerProvider(stack.getDisplayName(), BackpackItem.getInventory(stack), player, player));
-                }
-            }
-        }
+        CommonClass.openBackpack(context.getSender());
     }
 
     @Override

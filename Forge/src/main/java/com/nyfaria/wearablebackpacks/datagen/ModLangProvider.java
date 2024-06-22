@@ -34,7 +34,7 @@ public class ModLangProvider extends LanguageProvider {
         ItemInit.ITEMS.getEntries().forEach(this::itemLang);
         EntityInit.ENTITIES.getEntries().forEach(this::entityLang);
         BlockInit.BLOCKS.getEntries().forEach(this::blockLang);
-        add("itemGroup." + Constants.MODID, Constants.MOD_NAME);
+        add("itemGroup." + Constants.MODID +".tab", Constants.MOD_NAME);
         add("message.wearablebackpacks.limit","You already have a backpack equipped.");
         add("message.wearablebackpacks.chestplate","You can't equip a backpack while wearing a chestplate.");
         add("message.wearablebackpacks.sneak_place","Sneak and right click ground \nwith empty hand to unequip.");

@@ -8,8 +8,6 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ClientBackpackTooltip implements ClientTooltipComponent {
     public static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation(Constants.MODID, "textures/gui/tooltip.png");
@@ -93,7 +91,6 @@ public class ClientBackpackTooltip implements ClientTooltipComponent {
         return 3;
     }
 
-    @OnlyIn(Dist.CLIENT)
     enum Texture {
         SLOT(0, 0, 18, 20),
         BLOCKED_SLOT(0, 40, 18, 20),
