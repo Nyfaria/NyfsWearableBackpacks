@@ -2,7 +2,7 @@ plugins {
     id 'fabric-loom' version '1.0-SNAPSHOT'
     id 'maven-publish'
     id 'idea'
-    id "me.modmuss50.mod-publish-plugin" version "0.3.3"
+    id "me.modmuss50.mod-publish-plugin" version "0.5.1"
 }
 
 archivesBaseName = "${mod_id}-fabric-${minecraft_version}"
@@ -114,7 +114,7 @@ publishing {
     }
 }
 publishMods {
-    if(publishFabric) {
+    if(publishFabric.toBoolean()) {
         file = remapJar.archiveFile
         changelog = project(":Common").file("changelog.md").text
         type = STABLE

@@ -1,12 +1,12 @@
 Manifest-Version: 1.0
 Specification-Title: Wearable Backpacks
 Specification-Vendor: Nyfaria
-Specification-Version: 1.1.0
+Specification-Version: 1.1.1
 Implementation-Title: Common
-Implementation-Version: 1.1.0
+Implementation-Version: 1.1.1
 Implementation-Vendor: Nyfaria
-Implementation-Timestamp: 2024-06-22T12:10:07-0500
-Timestamp: 1719076207001
-Built-On-Java: 17.0.9+8-b1166.2 (JetBrains s.r.o.)
+Implementation-Timestamp: 2025-04-26T00:15:51-0500
+Timestamp: 1745644551014
+Built-On-Java: 17.0.14+1-b1367.22 (JetBrains s.r.o.)
 Built-On-Minecraft: 1.20.1
 

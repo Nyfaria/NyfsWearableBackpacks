@@ -70,6 +70,7 @@ public class BackpackItem extends ArmorItem implements DyeableLeatherItem {
         this.block = pBlock;
     }
 
+
     public static BackpackContainer getInventory(ItemStack itemStack) {
         return new BackpackContainer(itemStack);
     }

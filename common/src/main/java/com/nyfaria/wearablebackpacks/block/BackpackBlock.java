@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -50,6 +51,16 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
 
     public BackpackBlock(Properties p_49795_) {
         super(p_49795_);
+    }
+
+    @Override
+    public boolean canBeReplaced(BlockState pState, BlockPlaceContext pUseContext) {
+        return false;
+    }
+
+    @Override
+    public boolean canBeReplaced(BlockState pState, Fluid pFluid) {
+        return false;
     }
 
     @Override
@@ -78,10 +89,11 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
     @Override
     public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide) {
-
-            MenuProvider menuprovider = this.getMenuProvider(pState, pLevel, pPos);
-            if (menuprovider != null) {
-                Services.PLATFORM.openBPMenu((ServerPlayer) pPlayer, menuprovider);
+            if(pPlayer.getMainHandItem().isEmpty()) {
+                MenuProvider menuprovider = this.getMenuProvider(pState, pLevel, pPos);
+                if (menuprovider != null) {
+                    Services.PLATFORM.openBPMenu((ServerPlayer) pPlayer, menuprovider);
+                }
             }
         }
         return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
@@ -148,6 +160,8 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
         return shape;
     }
 
+
+
     public boolean triggerEvent(BlockState pState, Level pLevel, BlockPos pPos, int pId, int pParam) {
         super.triggerEvent(pState, pLevel, pPos, pId, pParam);
         BlockEntity blockentity = pLevel.getBlockEntity(pPos);
@@ -182,7 +196,7 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
                 CompoundTag tag = new CompoundTag();
                 ContainerHelper.saveAllItems(tag, BackpackBlockEntity.getInventory(blockEntity));
                 itemstack.getOrCreateTag().put("Items", tag);
-                if (BackpackHolder.getBackpackStack(pPlayer).isEmpty()) {
+                if (BackpackHolder.canEquipBackpack(pPlayer)) {
                     if (!pLevel.isClientSide) {
                         if (BackpackConfig.INSTANCE.useChestSlot.get()) {
                             pPlayer.setItemSlot(EquipmentSlot.CHEST, itemstack);
@@ -191,7 +205,7 @@ public class BackpackBlock extends HorizontalDirectionalBlock implements EntityB
                         }
                     }
                 } else {
-                    if (pPlayer.getItemBySlot(EquipmentSlot.CHEST).is(ItemInit.BACKPACK.get()) && !pLevel.isClientSide) {
+                    if (!BackpackHolder.getBackpackStack(pPlayer).isEmpty() && !pLevel.isClientSide) {
                         pPlayer.displayClientMessage(Component.translatable("message.wearablebackpacks.limit"), true);
                     } else if (!pLevel.isClientSide) {
                         pPlayer.displayClientMessage(Component.translatable("message.wearablebackpacks.chestplate"), true);

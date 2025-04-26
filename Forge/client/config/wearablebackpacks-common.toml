@@ -30,5 +30,5 @@ rows = 6
 #Range: 1 ~ 20
 columns = 9
 #Should the backpack be equipped in the armor slot?
-useChestSlot = false
+useChestSlot = true
 

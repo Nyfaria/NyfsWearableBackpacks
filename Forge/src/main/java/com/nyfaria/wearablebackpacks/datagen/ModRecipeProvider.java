@@ -25,8 +25,8 @@ public class ModRecipeProvider extends RecipeProvider {
                 .pattern("LLL")
                 .define('L', Items.LEATHER)
                 .define('W', ItemTags.WOOL)
-                .define('G', Tags.Items.INGOTS_GOLD)
-                .unlockedBy("has_leather", has(Tags.Items.LEATHER))
+                .define('G', Items.GOLD_INGOT)
+                .unlockedBy("has_leather", has(Items.LEATHER))
                 .save(recipeSaver);
     }
 }

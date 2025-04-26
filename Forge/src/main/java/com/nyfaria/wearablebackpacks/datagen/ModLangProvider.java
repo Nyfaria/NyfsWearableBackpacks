@@ -39,8 +39,8 @@ public class ModLangProvider extends LanguageProvider {
         add("message.wearablebackpacks.chestplate","You can't equip a backpack while wearing a chestplate.");
         add("message.wearablebackpacks.sneak_place","Sneak and right click ground \nwith empty hand to unequip.");
         add("message.wearablebackpacks.place","Place down and break \nwhile sneaking to equip");
-        add("keys.category.wearablebackpacks","Wearable Backpacks");
-        add("keys.wearablebackpacks.open_backpack","Open Backpack");
+        add("key.category.wearablebackpacks","Wearable Backpacks");
+        add("key.wearablebackpacks.open_backpack","Open Backpack");
     }
 
     protected void itemLang(RegistryObject<Item> entry) {

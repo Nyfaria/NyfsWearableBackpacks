@@ -1,5 +1,6 @@
 package com.nyfaria.wearablebackpacks.backpack;
 
+import com.nyfaria.wearablebackpacks.config.BackpackConfig;
 import com.nyfaria.wearablebackpacks.item.BackpackItem;
 import com.nyfaria.wearablebackpacks.platform.Services;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -21,5 +22,8 @@ public interface BackpackHolder {
             return stack;
         }
         return ItemStack.EMPTY;
+    }
+    static boolean canEquipBackpack(LivingEntity player) {
+        return BackpackConfig.INSTANCE.useChestSlot.get() ? player.getItemBySlot(EquipmentSlot.CHEST).isEmpty() : getBackpackStack(player).isEmpty();
     }
 }

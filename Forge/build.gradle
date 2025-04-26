@@ -5,7 +5,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '5.1.+'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'org.spongepowered.mixin' version '0.7.+'
-    id "me.modmuss50.mod-publish-plugin" version "0.3.3"
+    id "me.modmuss50.mod-publish-plugin" version "0.5.1"
     id 'dev._100media.gradleutils' version '1.+'
 }
 
@@ -127,9 +127,19 @@ processResources {
         }
     }
 }
-
-
-jar.finalizedBy('reobfJar')
+reobf {
+    jarJar {}
+}
+afterEvaluate {
+    reobfJar {
+        enabled = false
+    }
+    jar.finalizedBy reobfJar
+    tasks.jarJar.finalizedBy reobfJarJar
+}
+tasks.jarJar {
+    archiveClassifier = ''
+}
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -157,6 +167,7 @@ publishMods {
         if (curseforge_publishing_enabled.toBoolean()) {
             curseforge {
                 projectId = curseforge_project_id
+                projectSlug = 'nyfs-wearable-backpacks'
                 accessToken = curseforge_token
                 minecraftVersions.add(minecraft_version)
             }
@@ -167,6 +178,12 @@ publishMods {
                 projectId = modrinth_project_id
                 minecraftVersions.add(minecraft_version)
             }
+        }
+        discord {
+            webhookUrl = spider_news
+            username = "Backpacks News"
+            avatarUrl = "https://media.forgecdn.net/avatars/thumbnails/562/212/64/64/637915470008365620.png"
+            content = changelog.map { "# Nyf's Wearable Backpacks ${project.version} has been released for Minecraft ${minecraft_version}! \n (Pending Approval of Course)\n" + it}
         }
     }
 }

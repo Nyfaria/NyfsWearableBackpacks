@@ -14,7 +14,7 @@ import net.minecraft.world.level.material.MapColor;
 public class BlockInit {
     public static final RegistrationProvider<Block> BLOCKS = RegistrationProvider.get(Registries.BLOCK, Constants.MODID);
     public static final RegistrationProvider<BlockEntityType<?>> BLOCK_ENTITIES = RegistrationProvider.get(Registries.BLOCK_ENTITY_TYPE, Constants.MODID);
-    public static final RegistryObject<Block> BACKPACK = BLOCKS.register("backpack", () -> new BackpackBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BROWN).strength(2,3)));
+    public static final RegistryObject<Block> BACKPACK = BLOCKS.register("backpack", () -> new BackpackBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BROWN).forceSolidOn().strength(2,3)));
 
 
     public static final RegistryObject<BlockEntityType<BackpackBlockEntity>> BACKPACK_BE = BLOCK_ENTITIES.register("backpack", () -> BlockEntityType.Builder.of(BackpackBlockEntity::new, BACKPACK.get()).build(null));
